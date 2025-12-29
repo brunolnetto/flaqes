@@ -82,20 +82,17 @@ async def analyze_schema(
     
     # Configure introspection
     config = IntrospectionConfig(
-        tables=tables,
-        schemas=schemas,
-        exclude_patterns=exclude_patterns or [],
+        schemas=tuple(schemas) if schemas else ("public",),
+        include_tables=tuple(tables) if tables else None,
+        exclude_tables=tuple(exclude_patterns) if exclude_patterns else (),
     )
     
     # Connect and introspect
     async with introspector:
         result = await introspector.introspect(config)
     
-    # Build schema graph from introspection result
-    graph = SchemaGraph.from_tables(result.tables)
-    
-    # Generate and return report
-    return generate_report(graph, intent=intent)
+    # Generate and return report using the introspected graph
+    return generate_report(result.graph, intent=intent)
 
 
 async def introspect_schema(
@@ -130,12 +127,12 @@ async def introspect_schema(
     introspector = get_introspector_from_dsn(dsn)
     
     config = IntrospectionConfig(
-        tables=tables,
-        schemas=schemas,
-        exclude_patterns=exclude_patterns or [],
+        schemas=tuple(schemas) if schemas else ("public",),
+        include_tables=tuple(tables) if tables else None,
+        exclude_tables=tuple(exclude_patterns) if exclude_patterns else (),
     )
     
     async with introspector:
         result = await introspector.introspect(config)
     
-    return SchemaGraph.from_tables(result.tables)
+    return result.graph

@@ -34,6 +34,26 @@ uv pip install flakes[postgresql]
 
 ## Quick Start
 
+### Command-Line Interface
+
+```bash
+# Analyze entire database
+flakes analyze postgresql://user:pass@localhost/mydb
+
+# Use OLAP intent preset
+flakes analyze --intent olap postgresql://localhost/mydb
+
+# Analyze specific tables and save to file
+flakes analyze --tables users,orders --output report.md postgresql://localhost/mydb
+
+# JSON output for automation
+flakes analyze --format json --output report.json postgresql://localhost/mydb
+```
+
+See the [CLI Guide](docs/CLI_GUIDE.md) for comprehensive usage examples.
+
+### Python API
+
 ```python
 import asyncio
 from flakes import analyze_schema, Intent
@@ -198,9 +218,9 @@ flakes operates in three layers:
 - ✅ Tension analysis (normalization, performance, evolution)
 - ✅ Report generation (Markdown, JSON)
 - ✅ Comprehensive test suite
+- ✅ Command-line interface
 
 ### Roadmap 🚧
-- [ ] CLI interface (`flakes analyze postgresql://...`)
 - [ ] DDL parsing for offline analysis
 - [ ] MySQL support
 - [ ] SQLite support

@@ -223,12 +223,13 @@ flakes/
 - [x] Summary vs detailed views
 - [x] Main API entry points (`analyze_schema`, `introspect_schema`)
 
-### Phase 6: Polish (Partial ✅)
-- [ ] CLI interface (next priority)
+### Phase 6: Polish (Complete ✅)
+- [x] CLI interface (full-featured with all options)
 - [ ] DDL parsing (for offline analysis)
-- [x] Documentation (README, examples, implementation plan)
-- [x] Test suite (253 tests, 234 passing)
-- [ ] PyPI release (pending CLI)
+- [x] Documentation (README, examples, CLI guide, implementation plan)
+- [x] Test suite (258 tests, 258 passing)
+- [ ] PyPI release (next priority)
+- [ ] CI/CD setup (GitHub Actions)
 
 ---
 
@@ -328,7 +329,7 @@ asyncio.run(main())
 ### What Was Built
 
 **Core Components:**
-- 16 Python modules, 4,582 lines of code
+- 17 Python modules, 4,893 lines of code
 - Full type safety with Python 3.13+ and strict mypy
 - Async-first architecture with asyncpg
 
@@ -351,7 +352,8 @@ asyncio.run(main())
 ```
 flakes/
 ├── __init__.py              # Public API exports
-├── api.py                   # Main entry points (NEW)
+├── api.py                   # Main entry points
+├── cli.py                   # Command-line interface (NEW)
 ├── core/
 │   ├── intent.py            # Intent specification
 │   ├── schema_graph.py      # Data model (461 lines)

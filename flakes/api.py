@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 
 from flakes.core.intent import Intent
 from flakes.core.schema_graph import SchemaGraph
-from flakes.introspection import get_introspector
 from flakes.introspection.base import IntrospectionConfig
+from flakes.introspection.registry import get_introspector_from_dsn
 from flakes.report import SchemaReport, generate_report
 
 if TYPE_CHECKING:
@@ -78,7 +78,7 @@ async def analyze_schema(
         ... asyncio.run(main())
     """
     # Get the appropriate introspector for the DSN
-    introspector: Introspector = get_introspector(dsn)
+    introspector = get_introspector_from_dsn(dsn)
     
     # Configure introspection
     config = IntrospectionConfig(
@@ -127,7 +127,7 @@ async def introspect_schema(
         >>> for table in graph:
         ...     print(f"{table.name}: {len(table.columns)} columns")
     """
-    introspector: Introspector = get_introspector(dsn)
+    introspector = get_introspector_from_dsn(dsn)
     
     config = IntrospectionConfig(
         tables=tables,

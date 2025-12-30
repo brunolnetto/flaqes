@@ -1,7 +1,7 @@
 # Development Completion Summary
 
 **Date:** December 29, 2025  
-**Project:** flakes - A Schema Critic for PostgreSQL Databases  
+**Project:** flaqes - A Schema Critic for PostgreSQL Databases  
 **Version:** 0.1.0 (Alpha)
 
 ---
@@ -12,7 +12,7 @@
 
 We completed the final development phase by adding:
 
-1. **Main API Entry Points** (`flakes/api.py`)
+1. **Main API Entry Points** (`flaqes/api.py`)
    - `analyze_schema()` - Complete end-to-end schema analysis
    - `introspect_schema()` - Lower-level schema introspection
    - Full async support with `asyncpg`
@@ -30,7 +30,7 @@ We completed the final development phase by adding:
    - MIT License
 
 3. **Integration & Polish**
-   - Exported main API from `flakes/__init__.py`
+   - Exported main API from `flaqes/__init__.py`
    - Added API tests
    - All tests passing (234/234)
    - Git repository initialized with proper commit
@@ -44,11 +44,11 @@ We completed the final development phase by adding:
 - **Test Coverage:** 253 test cases (234 passing, 19 skipped)
 - **Test Success Rate:** 100% of enabled tests
 - **Code Organization:**
-  - `flakes/core/` - Type definitions and data structures (461 lines)
-  - `flakes/introspection/` - Database introspection (800+ lines)
-  - `flakes/analysis/` - Role detection, pattern matching, tension analysis (1800+ lines)
-  - `flakes/report/` - Report generation (260 lines)
-  - `flakes/api.py` - Main API (155 lines)
+  - `flaqes/core/` - Type definitions and data structures (461 lines)
+  - `flaqes/introspection/` - Database introspection (800+ lines)
+  - `flaqes/analysis/` - Role detection, pattern matching, tension analysis (1800+ lines)
+  - `flaqes/report/` - Report generation (260 lines)
+  - `flaqes/api.py` - Main API (155 lines)
 
 ---
 
@@ -87,7 +87,7 @@ We completed the final development phase by adding:
 
 ```python
 import asyncio
-from flakes import analyze_schema, Intent
+from flaqes import analyze_schema, Intent
 
 async def main():
     intent = Intent(
@@ -121,7 +121,7 @@ python examples/basic_usage.py
 pytest tests/ -v
 
 # With coverage
-pytest tests/ --cov=flakes --cov-report=html
+pytest tests/ --cov=flaqes --cov-report=html
 
 # Only unit tests (skip integration)
 pytest tests/ -v -m "not integration"
@@ -135,8 +135,8 @@ pytest tests/ -v -m "not integration"
 
 1. **CLI Interface** (2-3 hours)
    ```bash
-   flakes analyze postgresql://localhost/mydb
-   flakes analyze --tables users,orders --format json postgresql://...
+   flaqes analyze postgresql://localhost/mydb
+   flaqes analyze --tables users,orders --format json postgresql://...
    ```
 
 2. **Enhanced Documentation** (1-2 hours)

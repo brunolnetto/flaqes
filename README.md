@@ -1,8 +1,15 @@
-# flakes 🔍
+# flaqes 🔍
 
 **A schema critic for PostgreSQL databases**
 
-flakes analyzes database structures and surfaces design tensions, trade-offs, and alternative approaches based on your stated intent. Think of it as a thoughtful colleague who reviews your schema and explains *why* things are the way they are, not just *what* they are.
+flaqes analyzes database structures and surfaces design tensions, trade-offs, and alternative approaches based on your stated intent.
+
+Think of it as a thoughtful colleague who reviews your schema and tells you:
+- **What** you have - tables, columns, relationships, patterns
+- **How** it's structured - roles, design patterns, architectural choices  
+- **Why** it matters - trade-offs, risks, breaking points, and alternatives
+
+Unlike tools that just catalog structure or enforce rigid rules, flaqes understands *context* and explains *implications*.
 
 ## Features
 
@@ -11,43 +18,111 @@ flakes analyzes database structures and surfaces design tensions, trade-offs, an
 - 🎨 **Pattern Recognition** - Detects design patterns like SCD Type 2, soft deletes, polymorphic associations, and more
 - ⚖️ **Design Tensions** - Surfaces trade-offs in your current design with alternatives and effort estimates
 - 📊 **Comprehensive Reports** - Generates structured reports in Markdown or JSON format
+- 📐 **Mermaid ERD Diagrams** - Export visual Entity Relationship Diagrams for documentation
 - 🔬 **No Mutations** - Analysis only, never modifies your database
 
 ## Installation
 
 ```bash
 # Basic installation
-pip install flakes
+pip install flaqes
 
 # With PostgreSQL support (required for v0.1)
-pip install flakes[postgresql]
+pip install flaqes[postgresql]
 
 # Development installation
-pip install flakes[dev]
+pip install flaqes[dev]
 ```
 
 Or using `uv`:
 
 ```bash
-uv pip install flakes[postgresql]
+uv pip install flaqes[postgresql]
 ```
 
 ## Quick Start
 
-### Command-Line Interface
+flaqes supports **three levels of analysis** - use what you need:
+
+### Level 1: WHAT - Just Structure (No Analysis)
+
+Get raw schema facts without any interpretation:
 
 ```bash
-# Analyze entire database
-flakes analyze postgresql://user:pass@localhost/mydb
+# CLI: Introspect only (coming soon)
+flaqes introspect postgresql://localhost/mydb --format json > schema.json
+```
 
-# Use OLAP intent preset
-flakes analyze --intent olap postgresql://localhost/mydb
+```python
+# Python API: Schema structure only
+from flaqes import introspect_schema
 
-# Analyze specific tables and save to file
-flakes analyze --tables users,orders --output report.md postgresql://localhost/mydb
+graph = await introspect_schema("postgresql://localhost/mydb")
+
+# Access raw structure
+for table in graph:
+    print(f"Table: {table.name}")
+    print(f"Columns: {[c.name for c in table.columns]}")
+    print(f"Foreign Keys: {[fk.name for fk in table.foreign_keys]}")
+```
+
+### Level 2: HOW - Structure + Patterns
+
+Get structure detection without recommendations:
+
+```python
+from flaqes import introspect_schema
+from flaqes.analysis import RoleDetector, PatternDetector
+
+graph = await introspect_schema("postgresql://localhost/mydb")
+
+# Detect what tables ARE (roles)
+role_detector = RoleDetector()
+for table in graph:
+    role = role_detector.detect(table, graph)
+    print(f"{table.name}: {role.primary_role.name} ({role.confidence:.0%})")
+
+# Detect HOW they're designed (patterns)
+pattern_detector = PatternDetector()
+patterns = pattern_detector.detect_schema_patterns(graph)
+for table_name, table_patterns in patterns.items():
+    for pattern in table_patterns:
+        print(f"{table_name}: {pattern.pattern_type.name}")
+```
+
+### Level 3: WHY - Full Analysis with Recommendations
+
+Complete analysis with context-aware advice:
+
+#### Command-Line Interface
+
+```bash
+# Full analysis with default intent
+flaqes analyze postgresql://user:pass@localhost/mydb
+
+# With specific workload intent
+flaqes analyze --intent olap postgresql://localhost/mydb
+
+# Analyze specific tables
+flaqes analyze --tables users,orders --output report.md postgresql://localhost/mydb
 
 # JSON output for automation
-flakes analyze --format json --output report.json postgresql://localhost/mydb
+flaqes analyze --format json --output report.json postgresql://localhost/mydb
+```
+
+### Bonus: Visualize with Mermaid ERD
+
+Generate Entity Relationship Diagrams for documentation:
+
+```bash
+# Generate Mermaid ERD diagram
+flaqes diagram postgresql://localhost/mydb --output schema.mmd
+
+# Include specific tables only
+flaqes diagram --tables users,orders,products postgresql://localhost/mydb
+
+# Copy output and paste at https://mermaid.live/ to view
+flaqes diagram postgresql://localhost/mydb | pbcopy
 ```
 
 See the [CLI Guide](docs/CLI_GUIDE.md) for comprehensive usage examples.
@@ -56,7 +131,7 @@ See the [CLI Guide](docs/CLI_GUIDE.md) for comprehensive usage examples.
 
 ```python
 import asyncio
-from flakes import analyze_schema, Intent
+from flaqes import analyze_schema, Intent
 
 async def main():
     # Define your workload intent
@@ -84,17 +159,29 @@ async def main():
 asyncio.run(main())
 ```
 
-## What Makes flakes Different?
+## What Makes flaqes Different?
 
-Unlike traditional schema validators or linters, flakes:
+Most schema tools tell you **what** you have. Some help with **how** to query it. flaqes focuses on **why** it matters.
+
+### Traditional Tools vs flaqes
+
+| Traditional Schema Tools | flaqes |
+|-------------------------|---------|
+| Lists tables and columns | ✅ Plus semantic meaning (FACT, DIMENSION, etc.) |
+| Shows foreign keys | ✅ Plus relationship patterns (polymorphic, SCD, etc.) |
+| Validates constraints | ✅ Plus trade-off analysis (what you gain, what you risk) |
+| Enforces "best practices" | ✅ Provides context-aware recommendations |
+| Binary pass/fail | ✅ Confidence scores with supporting evidence |
+
+### Key Principles
 
 1. **Understands Intent** - Recommendations depend on your workload. A denormalized table might be problematic for OLTP but perfect for OLAP.
 
 2. **Embraces Uncertainty** - Every inference includes a confidence score and the signals that led to it. No black-box "best practices."
 
-3. **Explains Trade-offs** - Instead of saying "this is wrong," flakes says "here's what you gain, here's what you risk, and here's when it might break."
+3. **Explains Trade-offs** - Instead of saying "this is wrong," flaqes says "here's what you gain, here's what you risk, and here's when it might break."
 
-4. **Never Mutates** - flakes is read-only. It analyzes and advises, never changes your database.
+4. **Never Mutates** - flaqes is read-only. It analyzes and advises, never changes your database.
 
 ## Example Output
 
@@ -144,7 +231,7 @@ Unlike traditional schema validators or linters, flakes:
 The `Intent` dataclass captures your workload characteristics:
 
 ```python
-from flakes import Intent
+from flaqes import Intent
 
 intent = Intent(
     workload="OLTP" | "OLAP" | "mixed",
@@ -159,7 +246,7 @@ intent = Intent(
 Common presets are available:
 
 ```python
-from flakes.core.intent import (
+from flaqes.core.intent import (
     OLTP_INTENT,
     OLAP_INTENT,
     EVENT_SOURCING_INTENT,
@@ -167,30 +254,34 @@ from flakes.core.intent import (
 )
 ```
 
-### Lower-Level API
+### Modular API - Mix and Match
 
-For custom analysis workflows:
+For custom analysis workflows, use individual analyzers:
 
 ```python
-from flakes import introspect_schema
-from flakes.analysis import RoleDetector, PatternDetector, TensionAnalyzer
+from flaqes import introspect_schema
+from flaqes.analysis import RoleDetector, PatternDetector, TensionAnalyzer
 
-# Just introspect the schema
+# WHAT: Just introspect the schema
 graph = await introspect_schema("postgresql://localhost/mydb")
 
-# Run individual analyzers
+# HOW: Run individual pattern/role detectors
 role_detector = RoleDetector()
 pattern_detector = PatternDetector()
-tension_analyzer = TensionAnalyzer(intent=intent)
 
 for table in graph:
     role_result = role_detector.detect(table, graph)
     print(f"{table.name}: {role_result.primary_role.name}")
+
+# WHY: Add tension analysis only when needed
+from flaqes.core.intent import OLAP_INTENT
+tension_analyzer = TensionAnalyzer(intent=OLAP_INTENT)
+tensions = tension_analyzer.analyze(graph)
 ```
 
 ## Architecture
 
-flakes operates in three layers:
+flaqes operates in three layers:
 
 1. **Structural Facts Layer** (Objective)
    - Introspects database catalogs
@@ -229,9 +320,9 @@ flakes operates in three layers:
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.10+
 - PostgreSQL 12+ (for database introspection)
-- asyncpg (installed with `flakes[postgresql]`)
+- asyncpg (installed with `flaqes[postgresql]`)
 
 ## Contributing
 
@@ -247,4 +338,4 @@ Inspired by the need for thoughtful schema review tools that understand context 
 
 ---
 
-**Note:** flakes is alpha software. The API may change in future versions. Use in production with caution.
+**Note:** flaqes is alpha software. The API may change in future versions. Use in production with caution.

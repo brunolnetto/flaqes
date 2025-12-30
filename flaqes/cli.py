@@ -1,5 +1,5 @@
 """
-Command-line interface for flakes.
+Command-line interface for flaqes.
 
 This module provides a CLI for analyzing database schemas from the command line.
 """
@@ -11,11 +11,11 @@ import sys
 from pathlib import Path
 from typing import NoReturn
 
-from flakes import Intent, analyze_schema
-from flakes.core.intent import (
+from flaqes import Intent, analyze_schema
+from flaqes.core.intent import (
+    EVENT_SOURCING_INTENT,
     OLAP_INTENT,
     OLTP_INTENT,
-    EVENT_SOURCING_INTENT,
     STARTUP_MVP_INTENT,
 )
 
@@ -23,27 +23,30 @@ from flakes.core.intent import (
 def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
-        prog="flakes",
+        prog="flaqes",
         description="A schema critic for PostgreSQL databases - analyze structure, surface trade-offs, propose alternatives",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Analyze entire database with default intent
-  flakes analyze postgresql://user:pass@localhost/mydb
+  flaqes analyze postgresql://user:pass@localhost/mydb
 
   # Analyze with OLAP intent
-  flakes analyze --intent olap postgresql://localhost/mydb
+  flaqes analyze --intent olap postgresql://localhost/mydb
 
   # Analyze specific tables only
-  flakes analyze --tables users,orders,products postgresql://localhost/mydb
+  flaqes analyze --tables users,orders,products postgresql://localhost/mydb
 
   # Output JSON instead of Markdown
-  flakes analyze --format json --output report.json postgresql://localhost/mydb
+  flaqes analyze --format json --output report.json postgresql://localhost/mydb
 
   # Use custom intent
-  flakes analyze --workload OLTP --write-frequency high postgresql://localhost/mydb
+  flaqes analyze --workload OLTP --write-frequency high postgresql://localhost/mydb
+  
+  # Generate Mermaid ERD diagram
+  flaqes diagram postgresql://localhost/mydb --output schema.mmd
 
-For more information, visit: https://github.com/your-org/flakes
+For more information, visit: https://github.com/your-org/flaqes
         """,
     )
 
@@ -144,6 +147,35 @@ For more information, visit: https://github.com/your-org/flakes
 
     # version command
     subparsers.add_parser("version", help="Show version information")
+    
+    # diagram command
+    diagram_parser = subparsers.add_parser(
+        "diagram",
+        help="Generate Mermaid ERD diagram",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    
+    diagram_parser.add_argument(
+        "dsn",
+        help="Database connection string (e.g., postgresql://user:pass@host/db)",
+    )
+    
+    diagram_parser.add_argument(
+        "--output",
+        "-o",
+        type=Path,
+        help="Output file (default: stdout)",
+    )
+    
+    diagram_parser.add_argument(
+        "--tables",
+        help="Comma-separated list of tables to include (default: all tables)",
+    )
+    
+    diagram_parser.add_argument(
+        "--schemas",
+        help="Comma-separated list of schemas to include (default: public)",
+    )
 
     return parser
 
@@ -152,13 +184,13 @@ def parse_read_patterns(patterns_str: str) -> tuple[str, ...]:
     """Parse comma-separated read patterns."""
     valid_patterns = {"point_lookup", "range_scan", "aggregation", "join_heavy"}
     patterns = [p.strip() for p in patterns_str.split(",")]
-    
+
     for pattern in patterns:
         if pattern not in valid_patterns:
             print(f"Error: Invalid read pattern '{pattern}'", file=sys.stderr)
             print(f"Valid patterns: {', '.join(valid_patterns)}", file=sys.stderr)
             sys.exit(1)
-    
+
     return tuple(patterns)
 
 
@@ -177,19 +209,21 @@ def get_intent_from_args(args: argparse.Namespace) -> Intent | None:
         return intent
 
     # Check for custom intent
-    if any([
-        args.workload,
-        args.write_frequency,
-        args.read_patterns,
-        args.consistency,
-        args.evolution_rate,
-        args.data_volume,
-    ]):
+    if any(
+        [
+            args.workload,
+            args.write_frequency,
+            args.read_patterns,
+            args.consistency,
+            args.evolution_rate,
+            args.data_volume,
+        ]
+    ):
         # Build custom intent
         read_patterns = ("point_lookup",)
         if args.read_patterns:
             read_patterns = parse_read_patterns(args.read_patterns)
-        
+
         intent = Intent(
             workload=args.workload or "mixed",
             write_frequency=args.write_frequency or "medium",
@@ -200,7 +234,7 @@ def get_intent_from_args(args: argparse.Namespace) -> Intent | None:
         )
         print("Using custom intent", file=sys.stderr)
         return intent
-    
+
     # No intent specified - use defaults
     return None
 
@@ -210,6 +244,89 @@ async def cmd_analyze(args: argparse.Namespace) -> int:
     try:
         # Get intent
         intent = get_intent_from_args(args)
+
+        # Parse filtering options
+        tables = None
+        if args.tables:
+            tables = [t.strip() for t in args.tables.split(",")]
+
+        schemas = None
+        if args.schemas:
+            schemas = [s.strip() for s in args.schemas.split(",")]
+
+        exclude_patterns = None
+        if args.exclude:
+            exclude_patterns = [p.strip() for p in args.exclude.split(",")]
+
+        # Print progress
+        if not args.quiet:
+            print("🔍 Analyzing database schema...", file=sys.stderr)
+            if intent:
+                print(f"   Intent: {intent.summary()}", file=sys.stderr)
+            if tables:
+                print(f"   Tables: {', '.join(tables)}", file=sys.stderr)
+            print("", file=sys.stderr)
+
+        # Run analysis
+        report = await analyze_schema(
+            dsn=args.dsn,
+            intent=intent,
+            tables=tables,
+            schemas=schemas,
+            exclude_patterns=exclude_patterns,
+        )
+
+        # Generate output
+        if args.format == "json":
+            output = json.dumps(report.to_dict(), indent=2)
+        else:
+            output = report.to_markdown()
+
+        # Write output
+        if args.output:
+            args.output.write_text(output)
+            if not args.quiet:
+                print(f"✅ Report saved to {args.output}", file=sys.stderr)
+        else:
+            print(output)
+
+        # Print summary to stderr if not quiet
+        if not args.quiet and args.output:
+            print("", file=sys.stderr)
+            print("📊 Summary:", file=sys.stderr)
+            print(f"   Tables analyzed: {report.table_count}", file=sys.stderr)
+            if report.role_summary:
+                print(f"   Roles detected: {len(report.role_summary)}", file=sys.stderr)
+            if report.pattern_summary:
+                print(
+                    f"   Patterns found: {sum(report.pattern_summary.values())}",
+                    file=sys.stderr,
+                )
+            if report.tension_summary:
+                total_tensions = sum(report.tension_summary.values())
+                print(f"   Tensions identified: {total_tensions}", file=sys.stderr)
+
+        return 0
+
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Analysis interrupted by user", file=sys.stderr)
+        return 130
+    except Exception as e:
+        print(f"\n❌ Error: {e}", file=sys.stderr)
+        if args.verbose:
+            import traceback
+
+            traceback.print_exc()
+        return 1
+
+
+
+
+async def cmd_diagram(args: argparse.Namespace) -> int:
+    """Execute the diagram command to generate Mermaid ERD."""
+    try:
+        from flaqes import introspect_schema
+        from flaqes.report.mermaid import generate_mermaid_erd
         
         # Parse filtering options
         tables = None
@@ -220,72 +337,45 @@ async def cmd_analyze(args: argparse.Namespace) -> int:
         if args.schemas:
             schemas = [s.strip() for s in args.schemas.split(",")]
         
-        exclude_patterns = None
-        if args.exclude:
-            exclude_patterns = [p.strip() for p in args.exclude.split(",")]
+        print("🔍 Introspecting database schema...", file=sys.stderr)
         
-        # Print progress
-        if not args.quiet:
-            print(f"🔍 Analyzing database schema...", file=sys.stderr)
-            if intent:
-                print(f"   Intent: {intent.summary()}", file=sys.stderr)
-            if tables:
-                print(f"   Tables: {', '.join(tables)}", file=sys.stderr)
-            print("", file=sys.stderr)
-        
-        # Run analysis
-        report = await analyze_schema(
+        # Introspect schema
+        graph = await introspect_schema(
             dsn=args.dsn,
-            intent=intent,
             tables=tables,
             schemas=schemas,
-            exclude_patterns=exclude_patterns,
         )
         
-        # Generate output
-        if args.format == "json":
-            output = json.dumps(report.to_dict(), indent=2)
-        else:
-            output = report.to_markdown()
+        print(f"✅ Found {len(graph.tables)} tables", file=sys.stderr)
+        
+        # Generate Mermaid diagram
+        mermaid = generate_mermaid_erd(graph)
         
         # Write output
         if args.output:
-            args.output.write_text(output)
-            if not args.quiet:
-                print(f"✅ Report saved to {args.output}", file=sys.stderr)
+            args.output.write_text(mermaid)
+            print(f"✅ Mermaid diagram saved to {args.output}", file=sys.stderr)
+            print(f"   View it at: https://mermaid.live/", file=sys.stderr)
         else:
-            print(output)
-        
-        # Print summary to stderr if not quiet
-        if not args.quiet and args.output:
-            print("", file=sys.stderr)
-            print(f"📊 Summary:", file=sys.stderr)
-            print(f"   Tables analyzed: {report.table_count}", file=sys.stderr)
-            if report.role_summary:
-                print(f"   Roles detected: {len(report.role_summary)}", file=sys.stderr)
-            if report.pattern_summary:
-                print(f"   Patterns found: {sum(report.pattern_summary.values())}", file=sys.stderr)
-            if report.tension_summary:
-                total_tensions = sum(report.tension_summary.values())
-                print(f"   Tensions identified: {total_tensions}", file=sys.stderr)
+            print(mermaid)
         
         return 0
         
     except KeyboardInterrupt:
-        print("\n\n⚠️  Analysis interrupted by user", file=sys.stderr)
+        print("\n\n⚠️  Introspection interrupted by user", file=sys.stderr)
         return 130
     except Exception as e:
         print(f"\n❌ Error: {e}", file=sys.stderr)
-        if args.verbose:
-            import traceback
-            traceback.print_exc()
+        import traceback
+        traceback.print_exc()
         return 1
 
 
 def cmd_version(args: argparse.Namespace) -> int:
     """Execute the version command."""
-    from flakes import __version__
-    print(f"flakes version {__version__}")
+    from flaqes import __version__
+
+    print(f"flaqes version {__version__}")
     return 0
 
 
@@ -293,15 +383,17 @@ def main() -> NoReturn:
     """Main entry point for the CLI."""
     parser = create_parser()
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         sys.exit(0)
-    
+
     if args.command == "version":
         sys.exit(cmd_version(args))
     elif args.command == "analyze":
         sys.exit(asyncio.run(cmd_analyze(args)))
+    elif args.command == "diagram":
+        sys.exit(asyncio.run(cmd_diagram(args)))
     else:
         parser.print_help()
         sys.exit(1)

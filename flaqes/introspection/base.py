@@ -9,14 +9,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
-from flakes.core.schema_graph import SchemaGraph, Table
+from flaqes.core.schema_graph import SchemaGraph, Table
 
 
 @dataclass(frozen=True, slots=True)
 class IntrospectionConfig:
     """
     Configuration for schema introspection.
-    
+
     Controls which schemas/tables to include and what metadata to extract.
     """
 
@@ -55,7 +55,7 @@ class IntrospectionConfig:
 class IntrospectionResult:
     """
     Result of a database introspection operation.
-    
+
     Contains the schema graph and metadata about the introspection process.
     """
 
@@ -93,7 +93,7 @@ class IntrospectionResult:
 class IntrospectorProtocol(Protocol):
     """
     Protocol defining the interface for database introspectors.
-    
+
     All database-specific introspectors must implement this protocol.
     Using Protocol allows for duck typing while maintaining type safety.
     """
@@ -102,7 +102,7 @@ class IntrospectorProtocol(Protocol):
     def engine(self) -> str:
         """
         Return the engine identifier.
-        
+
         This should match the Engine literal type (e.g., 'postgresql').
         """
         ...
@@ -113,14 +113,14 @@ class IntrospectorProtocol(Protocol):
     ) -> IntrospectionResult:
         """
         Introspect the database and return a schema graph.
-        
+
         Args:
             config: Configuration controlling what to introspect.
                    If None, uses default configuration.
-        
+
         Returns:
             IntrospectionResult containing the schema graph and metadata.
-        
+
         Raises:
             ConnectionError: If unable to connect to the database.
             IntrospectionError: If introspection fails.
@@ -134,11 +134,11 @@ class IntrospectorProtocol(Protocol):
     ) -> Table | None:
         """
         Introspect a single table.
-        
+
         Args:
             table_name: Name of the table to introspect.
             schema: Schema containing the table. If None, uses default schema.
-        
+
         Returns:
             Table object if found, None otherwise.
         """
@@ -147,7 +147,7 @@ class IntrospectorProtocol(Protocol):
     async def close(self) -> None:
         """
         Close any open connections.
-        
+
         Should be called when done with introspection.
         """
         ...
@@ -156,10 +156,10 @@ class IntrospectorProtocol(Protocol):
 class Introspector(ABC):
     """
     Abstract base class for database introspectors.
-    
+
     Provides common functionality and defines the contract for
     database-specific implementations.
-    
+
     Subclasses must implement:
     - engine property
     - _connect() method
@@ -172,7 +172,7 @@ class Introspector(ABC):
     def __init__(self, dsn: str) -> None:
         """
         Initialize the introspector with a connection string.
-        
+
         Args:
             dsn: Database connection string (engine-specific format).
         """
@@ -202,7 +202,7 @@ class Introspector(ABC):
     ) -> list[Table]:
         """
         Introspect all tables matching the configuration.
-        
+
         This should populate basic table info and columns.
         """
         ...
@@ -215,7 +215,7 @@ class Introspector(ABC):
     ) -> None:
         """
         Introspect constraints for the given tables.
-        
+
         This should populate primary keys, foreign keys, and other constraints.
         Modifies tables in place.
         """
@@ -229,7 +229,7 @@ class Introspector(ABC):
     ) -> None:
         """
         Introspect indexes for the given tables.
-        
+
         Modifies tables in place.
         """
         ...
@@ -245,7 +245,7 @@ class Introspector(ABC):
     ) -> IntrospectionResult:
         """
         Introspect the database and return a schema graph.
-        
+
         This is the main entry point for introspection.
         """
         if config is None:

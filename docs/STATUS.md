@@ -1,4 +1,4 @@
-# flakes Project Status
+# flaqes Project Status
 
 **Version:** 0.1.0-alpha  
 **Date:** December 29, 2025  
@@ -8,7 +8,7 @@
 
 ## Quick Summary
 
-flakes is a **schema critic for PostgreSQL databases** that provides intent-aware analysis of database schemas. All core functionality is implemented and tested. The project has met all success criteria for v0.1.0 alpha release.
+flaqes is a **schema critic for PostgreSQL databases** that provides intent-aware analysis of database schemas. All core functionality is implemented and tested. The project has met all success criteria for v0.1.0 alpha release.
 
 ---
 
@@ -25,13 +25,13 @@ flakes is a **schema critic for PostgreSQL databases** that provides intent-awar
 | **Tension Analysis** | ✅ Complete | Intent-aware with alternatives and effort estimates |
 | **Report Generation** | ✅ Complete | Markdown and JSON output |
 | **Main API** | ✅ Complete | `analyze_schema()` and `introspect_schema()` |
-| **CLI Interface** | ✅ Complete | `flakes analyze` command with full options |
+| **CLI Interface** | ✅ Complete | `flaqes analyze` command with full options |
 | **Documentation** | ✅ Complete | README, implementation plan, examples, CLI guide |
 | **Testing** | ✅ Complete | 258 tests, 258 passing (19 integration skipped) |
 
 ### 🔄 In Progress (Phase 6)
 
-- [x] CLI interface (`flakes analyze ...`)
+- [x] CLI interface (`flaqes analyze ...`)
 - [ ] PyPI package publishing
 - [ ] CI/CD setup (GitHub Actions)
 
@@ -79,7 +79,7 @@ CLI:            Full-featured command-line interface
 
 ```python
 import asyncio
-from flakes import analyze_schema, Intent
+from flaqes import analyze_schema, Intent
 
 async def main():
     intent = Intent(
@@ -137,8 +137,8 @@ asyncio.run(main())
 
 1. ~~**CLI Tool**~~ ✅ Complete!
    ```bash
-   flakes analyze postgresql://localhost/mydb
-   flakes analyze --intent olap --format json postgresql://...
+   flaqes analyze postgresql://localhost/mydb
+   flaqes analyze --intent olap --format json postgresql://...
    ```
 
 2. **PyPI Publishing** (Priority: High, Effort: 1 hour)
@@ -168,14 +168,14 @@ asyncio.run(main())
 ```bash
 # Clone and setup
 git clone <repository>
-cd flakes
+cd flaqes
 uv sync
 
 # Run tests
 pytest tests/ -v
 
 # Run with coverage
-pytest tests/ --cov=flakes --cov-report=html
+pytest tests/ --cov=flaqes --cov-report=html
 
 # Run example (requires PostgreSQL)
 # Edit examples/basic_usage.py with your DSN

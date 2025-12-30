@@ -8,7 +8,7 @@ description: Run the test suite with coverage
 
 1. Run pytest with coverage:
 ```bash
-uv run pytest --cov=flakes --cov-report=term-missing -v
+uv run pytest --cov=flaqes --cov-report=term-missing -v
 ```
 
 2. If tests fail, fix the issues before proceeding.

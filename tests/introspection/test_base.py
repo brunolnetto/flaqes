@@ -2,12 +2,12 @@
 
 import pytest
 
-from flakes.introspection.base import (
+from flaqes.core.schema_graph import SchemaGraph
+from flaqes.introspection.base import (
     IntrospectionConfig,
-    IntrospectionResult,
     IntrospectionError,
+    IntrospectionResult,
 )
-from flakes.core.schema_graph import SchemaGraph
 
 
 class TestIntrospectionConfig:
@@ -15,7 +15,7 @@ class TestIntrospectionConfig:
 
     def test_default_config(self) -> None:
         config = IntrospectionConfig()
-        
+
         assert config.schemas == ("public",)
         assert config.include_tables is None
         assert config.exclude_tables == ()
@@ -39,9 +39,7 @@ class TestIntrospectionConfig:
         assert "public.customers" in config.include_tables  # type: ignore
 
     def test_exclude_patterns(self) -> None:
-        config = IntrospectionConfig(
-            exclude_tables=("pg_*", "temp_*", "*.backup")
-        )
+        config = IntrospectionConfig(exclude_tables=("pg_*", "temp_*", "*.backup"))
         assert "pg_*" in config.exclude_tables
 
 
@@ -58,7 +56,7 @@ class TestIntrospectionResult:
             table_count=10,
             relationship_count=5,
         )
-        
+
         assert result.engine == "postgresql"
         assert result.engine_version == "16.1"
         assert result.table_count == 10
@@ -72,7 +70,7 @@ class TestIntrospectionResult:
             table_count=25,
             relationship_count=12,
         )
-        
+
         summary = result.summary
         assert "postgresql" in summary
         assert "16.1" in summary
@@ -86,7 +84,7 @@ class TestIntrospectionResult:
             table_count=5,
             relationship_count=2,
         )
-        
+
         summary = result.summary
         assert "unknown version" in summary
 
@@ -96,7 +94,7 @@ class TestIntrospectionResult:
             engine="postgresql",
             warnings=("Some table skipped", "Another warning"),
         )
-        
+
         assert len(result.warnings) == 2
 
 
@@ -110,7 +108,7 @@ class TestIntrospectionError:
             engine="postgresql",
             cause=cause,
         )
-        
+
         assert "Failed to introspect" in str(error)
         assert error.engine == "postgresql"
         assert error.cause is cause
@@ -120,7 +118,7 @@ class TestIntrospectionError:
             "Unknown error",
             engine="mysql",
         )
-        
+
         assert error.cause is None
 
 
@@ -129,10 +127,9 @@ class TestIntrospectionError:
 # =============================================================================
 
 
-import pytest_asyncio
-from flakes.introspection.base import Introspector, IntrospectionConfig
-from flakes.core.schema_graph import Column, DataType, PrimaryKey, Table
-from flakes.core.types import DataTypeCategory
+from flaqes.core.schema_graph import Column, DataType, PrimaryKey, Table
+from flaqes.core.types import DataTypeCategory
+from flaqes.introspection.base import Introspector
 
 
 class MockIntrospector(Introspector):
@@ -194,7 +191,7 @@ class TestIntrospectorBaseClass:
     async def test_introspect_with_default_config(self) -> None:
         """Introspect should work with default config."""
         introspector = MockIntrospector("mock://localhost/test")
-        
+
         # Add a mock table
         table = Table(
             name="users",
@@ -209,9 +206,9 @@ class TestIntrospectorBaseClass:
             primary_key=PrimaryKey(name="pk", columns=("id",)),
         )
         introspector.set_mock_tables([table])
-        
+
         result = await introspector.introspect()
-        
+
         assert result.engine == "mock"
         assert result.engine_version == "1.0.0-mock"
         assert result.table_count == 1
@@ -225,16 +222,16 @@ class TestIntrospectorBaseClass:
             schemas=("public", "staging"),
             include_indexes=False,
         )
-        
+
         result = await introspector.introspect(config)
-        
+
         assert result.introspected_schemas == ("public", "staging")
 
     @pytest.mark.asyncio
     async def test_introspect_table_single(self) -> None:
         """Introspect_table should return a single table."""
         introspector = MockIntrospector("mock://localhost/test")
-        
+
         table = Table(
             name="orders",
             schema="public",
@@ -247,9 +244,9 @@ class TestIntrospectorBaseClass:
             primary_key=PrimaryKey(name="pk", columns=("id",)),
         )
         introspector.set_mock_tables([table])
-        
+
         result = await introspector.introspect_table("orders")
-        
+
         assert result is not None
         assert result.name == "orders"
 
@@ -257,7 +254,7 @@ class TestIntrospectorBaseClass:
     async def test_introspect_table_with_schema(self) -> None:
         """Introspect_table should use provided schema."""
         introspector = MockIntrospector("mock://localhost/test")
-        
+
         table = Table(
             name="events",
             schema="analytics",
@@ -269,9 +266,9 @@ class TestIntrospectorBaseClass:
             ],
         )
         introspector.set_mock_tables([table])
-        
+
         result = await introspector.introspect_table("events", schema="analytics")
-        
+
         assert result is not None
         assert result.schema == "analytics"
 
@@ -279,12 +276,12 @@ class TestIntrospectorBaseClass:
     async def test_async_context_manager(self) -> None:
         """Introspector should work as async context manager."""
         introspector = MockIntrospector("mock://localhost/test")
-        
+
         async with introspector as ctx:
             assert ctx is introspector
             assert introspector._connect_called
             assert introspector._connected
-        
+
         assert introspector._close_called
         assert not introspector._connected
 
@@ -293,8 +290,7 @@ class TestIntrospectorBaseClass:
         """Introspect should skip indexes when config says so."""
         introspector = MockIntrospector("mock://localhost/test")
         config = IntrospectionConfig(include_indexes=False)
-        
+
         # This should complete without calling _introspect_indexes
         result = await introspector.introspect(config)
         assert result.table_count == 0
-

@@ -1,1 +1,1 @@
-"""Test package for flakes."""
+"""Test package for flaqes."""

@@ -11,12 +11,14 @@ Requires Docker to be running.
 """
 
 import subprocess
+
 import pytest
 
 # Check for required dependencies
 try:
     import asyncpg
     from testcontainers.postgres import PostgresContainer
+
     HAS_DEPS = True
 except ImportError:
     HAS_DEPS = False
@@ -24,8 +26,7 @@ except ImportError:
 # Skip all tests if dependencies not available
 pytestmark = [
     pytest.mark.skipif(
-        not HAS_DEPS,
-        reason="testcontainers[postgres] or asyncpg not installed"
+        not HAS_DEPS, reason="testcontainers[postgres] or asyncpg not installed"
     ),
     pytest.mark.integration,
 ]
@@ -135,13 +136,13 @@ ANALYZE;
 @pytest.fixture(scope="module")
 def postgres_dsn():
     """Start a PostgreSQL container and return connection URL.
-    
+
     Uses module scope to reuse the container across all tests in this file.
     Uses psql via subprocess to set up schema (avoids event loop issues).
     """
     if not HAS_DEPS:
         pytest.skip("testcontainers not available")
-    
+
     with PostgresContainer("postgres:16-alpine") as postgres:
         # Get the connection URL
         host = postgres.get_container_host_ip()
@@ -149,9 +150,9 @@ def postgres_dsn():
         user = postgres.username
         password = postgres.password
         database = postgres.dbname
-        
+
         dsn = f"postgresql://{user}:{password}@{host}:{port}/{database}"
-        
+
         # Use docker exec to run psql for schema setup (synchronous, no event loop issues)
         container_id = postgres.get_wrapped_container().id
         subprocess.run(
@@ -161,14 +162,14 @@ def postgres_dsn():
             text=True,
             check=True,
         )
-        
+
         yield dsn
 
 
 if HAS_DEPS:
-    from flakes.introspection.postgresql import PostgreSQLIntrospector
-    from flakes.introspection.base import IntrospectionConfig
-    from flakes.core.types import DataTypeCategory
+    from flaqes.core.types import DataTypeCategory
+    from flaqes.introspection.base import IntrospectionConfig
+    from flaqes.introspection.postgresql import PostgreSQLIntrospector
 
 
 class TestPostgreSQLConnection:
@@ -178,7 +179,7 @@ class TestPostgreSQLConnection:
     async def test_connect_and_get_version(self, postgres_dsn: str) -> None:
         """Should connect and retrieve PostgreSQL version."""
         introspector = PostgreSQLIntrospector(postgres_dsn)
-        
+
         async with introspector:
             version = await introspector._get_engine_version()
             assert version is not None
@@ -193,13 +194,18 @@ class TestTableIntrospection:
         """Should discover all tables in the schema."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             table_names = {t.name for t in result.graph}
             expected = {
-                "customers", "products", "order_status", "orders",
-                "order_items", "customer_history", "audit_events"
+                "customers",
+                "products",
+                "order_status",
+                "orders",
+                "order_items",
+                "customer_history",
+                "audit_events",
             }
-            
+
             assert expected.issubset(table_names)
             assert result.table_count >= 7
 
@@ -208,32 +214,32 @@ class TestTableIntrospection:
         """Should correctly introspect table columns."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             customers = result.graph.get_table_by_name("customers")
             assert customers is not None
-            
+
             # Check column count
             assert len(customers.columns) == 5
-            
+
             # Check specific columns
             id_col = customers.get_column("id")
             assert id_col is not None
             # SERIAL creates integer with sequence default, or is identity
             assert (
-                id_col.is_identity 
+                id_col.is_identity
                 or "serial" in id_col.data_type.raw.lower()
                 or (id_col.default and "nextval" in id_col.default)
             )
-            
+
             email_col = customers.get_column("email")
             assert email_col is not None
             assert not email_col.nullable
             assert email_col.data_type.category == DataTypeCategory.TEXT
-            
+
             metadata_col = customers.get_column("metadata")
             assert metadata_col is not None
             assert metadata_col.data_type.category == DataTypeCategory.JSON
-            
+
             created_col = customers.get_column("created_at")
             assert created_col is not None
             assert created_col.data_type.category == DataTypeCategory.TIMESTAMP
@@ -247,13 +253,13 @@ class TestConstraintIntrospection:
         """Should correctly introspect primary keys."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             # Simple PK
             customers = result.graph.get_table_by_name("customers")
             assert customers is not None
             assert customers.primary_key is not None
             assert customers.primary_key.columns == ("id",)
-            
+
             # Composite PK
             order_items = result.graph.get_table_by_name("order_items")
             assert order_items is not None
@@ -266,35 +272,39 @@ class TestConstraintIntrospection:
         """Should correctly introspect foreign keys."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             orders = result.graph.get_table_by_name("orders")
             assert orders is not None
             assert len(orders.foreign_keys) == 2  # customer_id, status_id
-            
+
             # Find customer FK
             customer_fk = next(
-                (fk for fk in orders.foreign_keys if "customer_id" in fk.columns),
-                None
+                (fk for fk in orders.foreign_keys if "customer_id" in fk.columns), None
             )
             assert customer_fk is not None
             assert customer_fk.target_table == "customers"
             # Verify on_delete is captured (should be CASCADE for customer_id FK)
-            assert customer_fk.on_delete in ("CASCADE", "NO ACTION", "RESTRICT", "SET NULL")
+            assert customer_fk.on_delete in (
+                "CASCADE",
+                "NO ACTION",
+                "RESTRICT",
+                "SET NULL",
+            )
 
     @pytest.mark.asyncio
     async def test_unique_constraints(self, postgres_dsn: str) -> None:
         """Should correctly introspect unique constraints."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             customers = result.graph.get_table_by_name("customers")
             assert customers is not None
-            
+
             # Email should have unique constraint
             unique_email = any(
                 c.columns == ("email",)
                 for c in customers.constraints
-                if hasattr(c, 'columns')
+                if hasattr(c, "columns")
             )
             # Or captured as unique index
             if not unique_email:
@@ -313,23 +323,25 @@ class TestIndexIntrospection:
         """Should discover indexes on tables."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             orders = result.graph.get_table_by_name("orders")
             assert orders is not None
-            
+
             # Should have at least customer_id and created_at indexes
             index_columns = {idx.columns for idx in orders.indexes if idx.columns}
-            assert ("customer_id",) in index_columns or any("customer" in str(c) for c in index_columns)
+            assert ("customer_id",) in index_columns or any(
+                "customer" in str(c) for c in index_columns
+            )
 
     @pytest.mark.asyncio
     async def test_partial_index(self, postgres_dsn: str) -> None:
         """Should detect partial indexes."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             orders = result.graph.get_table_by_name("orders")
             assert orders is not None
-            
+
             # Find partial index on status_id
             partial_indexes = [idx for idx in orders.indexes if idx.is_partial]
             # At least one partial index should exist
@@ -340,15 +352,12 @@ class TestIndexIntrospection:
         """Should handle composite indexes."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             audit = result.graph.get_table_by_name("audit_events")
             assert audit is not None
-            
+
             # Find the entity type/id composite index
-            composite_indexes = [
-                idx for idx in audit.indexes
-                if len(idx.columns) > 1
-            ]
+            composite_indexes = [idx for idx in audit.indexes if len(idx.columns) > 1]
             assert len(composite_indexes) >= 1
 
 
@@ -360,13 +369,14 @@ class TestRelationshipIntrospection:
         """Should build relationships from FKs."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             # Should have relationships
             assert result.relationship_count > 0
-            
+
             # Orders -> Customers relationship should exist
             order_customer_rel = any(
-                r.source_table == "public.orders" and r.target_table == "public.customers"
+                r.source_table == "public.orders"
+                and r.target_table == "public.customers"
                 for r in result.graph.relationships
             )
             assert order_customer_rel
@@ -376,13 +386,17 @@ class TestRelationshipIntrospection:
         """Should detect identifying relationships."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect()
-            
+
             # order_items has identifying relationship to orders
             # (order_id is part of PK)
             order_items_rel = next(
-                (r for r in result.graph.relationships
-                 if r.source_table == "public.order_items" and r.target_table == "public.orders"),
-                None
+                (
+                    r
+                    for r in result.graph.relationships
+                    if r.source_table == "public.order_items"
+                    and r.target_table == "public.orders"
+                ),
+                None,
             )
             assert order_items_rel is not None
             assert order_items_rel.is_identifying
@@ -396,7 +410,7 @@ class TestSingleTableIntrospection:
         """Should introspect a single table."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             table = await introspector.introspect_table("customers")
-            
+
             assert table is not None
             assert table.name == "customers"
             assert len(table.columns) == 5
@@ -406,7 +420,7 @@ class TestSingleTableIntrospection:
         """Should return None for nonexistent table."""
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             table = await introspector.introspect_table("nonexistent_table_xyz")
-            
+
             # Should be None or empty result
             assert table is None
 
@@ -418,10 +432,10 @@ class TestIntrospectionConfig:
     async def test_exclude_indexes(self, postgres_dsn: str) -> None:
         """Should skip indexes when configured."""
         config = IntrospectionConfig(include_indexes=False)
-        
+
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect(config)
-            
+
             # Tables should have no indexes (or only PK indexes)
             for table in result.graph:
                 non_pk_indexes = [idx for idx in table.indexes if not idx.is_primary]
@@ -432,10 +446,10 @@ class TestIntrospectionConfig:
     async def test_include_row_estimates(self, postgres_dsn: str) -> None:
         """Should include row estimates when configured."""
         config = IntrospectionConfig(include_row_estimates=True)
-        
+
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect(config)
-            
+
             # order_status has 5 rows inserted
             status = result.graph.get_table_by_name("order_status")
             if status and status.row_estimate is not None:
@@ -449,10 +463,10 @@ class TestEdgeCases:
     async def test_table_comments(self, postgres_dsn: str) -> None:
         """Should capture table comments."""
         config = IntrospectionConfig(include_comments=True)
-        
+
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect(config)
-            
+
             customers = result.graph.get_table_by_name("customers")
             # Comment may or may not be captured depending on implementation
             # This test verifies no error occurs
@@ -464,10 +478,10 @@ class TestEdgeCases:
         config = IntrospectionConfig(
             exclude_tables=("customer*",)  # Exclude customers and customer_history
         )
-        
+
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect(config)
-            
+
             table_names = {t.name for t in result.graph}
             # Tables matching customer* should be excluded
             assert "customers" not in table_names
@@ -480,7 +494,7 @@ class TestEdgeCases:
         """Should respect include_views configuration."""
         # By default, views are not included
         config = IntrospectionConfig(include_views=False)
-        
+
         async with PostgreSQLIntrospector(postgres_dsn) as introspector:
             result = await introspector.introspect(config)
             # Test completes without error - validates the config path is exercised

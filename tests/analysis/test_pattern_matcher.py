@@ -1,24 +1,22 @@
 """Tests for pattern detection module."""
 
-import pytest
-
-from flakes.analysis.pattern_matcher import (
+from flaqes.analysis.pattern_matcher import (
     DetectedPattern,
     PatternCategory,
     PatternDetector,
     PatternSignal,
     PatternType,
-    _detect_scd_type_2,
-    _detect_soft_delete,
     _detect_audit_timestamps,
     _detect_audit_user_tracking,
-    _detect_polymorphic,
+    _detect_event_sourcing,
     _detect_jsonb_schema,
     _detect_optimistic_locking,
+    _detect_polymorphic,
+    _detect_scd_type_2,
+    _detect_soft_delete,
     _detect_tree_structure,
-    _detect_event_sourcing,
 )
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     DataType,
     ForeignKey,
@@ -26,8 +24,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import DataTypeCategory
-
+from flaqes.core.types import DataTypeCategory
 
 # =============================================================================
 # Helper Functions
@@ -85,9 +82,9 @@ class TestSCDType2Detection:
                 make_column("is_current", DataTypeCategory.BOOLEAN),
             ],
         )
-        
+
         result = _detect_scd_type_2(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.SCD_TYPE_2
         assert result.confidence >= 0.8
@@ -104,9 +101,9 @@ class TestSCDType2Detection:
                 make_column("end_date", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_scd_type_2(table)
-        
+
         assert result is not None
         assert result.confidence >= 0.7
 
@@ -120,9 +117,9 @@ class TestSCDType2Detection:
                 make_column("version", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_scd_type_2(table)
-        
+
         assert result is not None
         assert any(s.name == "version_column" for s in result.signals)
 
@@ -137,9 +134,9 @@ class TestSCDType2Detection:
                 make_column("updated_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_scd_type_2(table)
-        
+
         assert result is not None
         # Confidence should be lower due to updated_at
         assert any(s.name == "updated_at_present" for s in result.signals)
@@ -153,9 +150,9 @@ class TestSCDType2Detection:
                 make_column("name", DataTypeCategory.TEXT),
             ],
         )
-        
+
         result = _detect_scd_type_2(table)
-        
+
         assert result is None
 
 
@@ -177,9 +174,9 @@ class TestSoftDeleteDetection:
                 make_column("deleted_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_soft_delete(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.TEMPORAL_DELETE
         assert result.confidence >= 0.8
@@ -195,9 +192,9 @@ class TestSoftDeleteDetection:
                 make_column("is_deleted", DataTypeCategory.BOOLEAN),
             ],
         )
-        
+
         result = _detect_soft_delete(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.SOFT_DELETE
         assert result.confidence >= 0.8
@@ -212,9 +209,9 @@ class TestSoftDeleteDetection:
                 make_column("deleted_by", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_soft_delete(table)
-        
+
         assert result is not None
         assert "deleted_by" in result.related_columns
 
@@ -227,9 +224,9 @@ class TestSoftDeleteDetection:
                 make_column("name", DataTypeCategory.TEXT),
             ],
         )
-        
+
         result = _detect_soft_delete(table)
-        
+
         assert result is None
 
 
@@ -252,9 +249,9 @@ class TestAuditTimestampDetection:
                 make_column("updated_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_audit_timestamps(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.AUDIT_TIMESTAMPS
         assert result.confidence >= 0.9
@@ -270,9 +267,9 @@ class TestAuditTimestampDetection:
                 make_column("created_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_audit_timestamps(table)
-        
+
         assert result is not None
         assert result.confidence >= 0.4
 
@@ -286,9 +283,9 @@ class TestAuditTimestampDetection:
                 make_column("last_modified", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_audit_timestamps(table)
-        
+
         assert result is not None
         assert len(result.signals) == 2
 
@@ -312,9 +309,9 @@ class TestAuditUserTrackingDetection:
                 make_column("updated_by", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_audit_user_tracking(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.AUDIT_USER_TRACKING
         assert "created_by" in result.related_columns
@@ -340,9 +337,9 @@ class TestPolymorphicDetection:
                 make_column("commentable_id", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_polymorphic(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.POLYMORPHIC
         assert result.confidence >= 0.5
@@ -358,9 +355,9 @@ class TestPolymorphicDetection:
                 make_column("entity_id", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_polymorphic(table)
-        
+
         assert result is not None
         assert any(s.name == "type_discriminator" for s in result.signals)
 
@@ -383,9 +380,9 @@ class TestJSONBSchemaDetection:
                 make_column("metadata", DataTypeCategory.JSON),
             ],
         )
-        
+
         result = _detect_jsonb_schema(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.JSONB_SCHEMA
         assert result.confidence >= 0.6
@@ -399,9 +396,9 @@ class TestJSONBSchemaDetection:
                 make_column("config_values", DataTypeCategory.JSON),
             ],
         )
-        
+
         result = _detect_jsonb_schema(table)
-        
+
         assert result is not None
         assert result.confidence >= 0.3
 
@@ -414,9 +411,9 @@ class TestJSONBSchemaDetection:
                 make_column("name", DataTypeCategory.TEXT),
             ],
         )
-        
+
         result = _detect_jsonb_schema(table)
-        
+
         assert result is None
 
 
@@ -438,9 +435,9 @@ class TestOptimisticLockingDetection:
                 make_column("version", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_optimistic_locking(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.OPTIMISTIC_LOCKING
         assert result.confidence >= 0.8
@@ -454,9 +451,9 @@ class TestOptimisticLockingDetection:
                 make_column("lock_version", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         result = _detect_optimistic_locking(table)
-        
+
         assert result is not None
 
 
@@ -487,10 +484,10 @@ class TestTreeStructureDetection:
                 )
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         result = _detect_tree_structure(table, graph)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.TREE_STRUCTURE
         assert result.confidence >= 0.7
@@ -505,10 +502,10 @@ class TestTreeStructureDetection:
                 make_column("path", DataTypeCategory.TEXT),
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         result = _detect_tree_structure(table, graph)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.MATERIALIZED_PATH
 
@@ -532,9 +529,9 @@ class TestEventSourcingDetection:
                 make_column("created_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_event_sourcing(table)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.EVENT_SOURCING
         assert result.confidence >= 0.7
@@ -550,9 +547,9 @@ class TestEventSourcingDetection:
                 make_column("occurred_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_event_sourcing(table)
-        
+
         assert result is not None
         assert result.confidence >= 0.5
 
@@ -566,9 +563,9 @@ class TestEventSourcingDetection:
                 make_column("created_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_event_sourcing(table)
-        
+
         assert result is not None
         assert any(s.name == "immutable_timestamps" for s in result.signals)
 
@@ -593,13 +590,13 @@ class TestPatternDetector:
                 make_column("metadata", DataTypeCategory.JSON),
             ],
         )
-        
+
         detector = PatternDetector()
         graph = SchemaGraph.from_tables([table])
         patterns = detector.detect_all(table, graph)
-        
+
         assert len(patterns) >= 2  # Should detect audit timestamps and soft delete
-        
+
         # Should be sorted by confidence (descending)
         confidences = [p.confidence for p in patterns]
         assert confidences == sorted(confidences, reverse=True)
@@ -614,12 +611,12 @@ class TestPatternDetector:
                 make_column("updated_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         detector = PatternDetector()
         graph = SchemaGraph.from_tables([table])
-        
+
         result = detector.detect_pattern(table, PatternType.AUDIT_TIMESTAMPS, graph)
-        
+
         assert result is not None
         assert result.pattern_type == PatternType.AUDIT_TIMESTAMPS
 
@@ -639,12 +636,12 @@ class TestPatternDetector:
                 make_column("metadata", DataTypeCategory.JSON),
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table1, table2])
         detector = PatternDetector()
-        
+
         results = detector.detect_schema_patterns(graph)
-        
+
         assert len(results) >= 1  # At least one table should have patterns
 
     def test_min_confidence_threshold(self) -> None:
@@ -653,17 +650,21 @@ class TestPatternDetector:
             "weak_signals",
             columns=[
                 make_column("id", DataTypeCategory.INTEGER),
-                make_column("valid_from", DataTypeCategory.TIMESTAMP),  # Only valid_from, low confidence
+                make_column(
+                    "valid_from", DataTypeCategory.TIMESTAMP
+                ),  # Only valid_from, low confidence
             ],
         )
-        
+
         # High threshold
         detector = PatternDetector(min_confidence=0.8)
         graph = SchemaGraph.from_tables([table])
         patterns = detector.detect_all(table, graph)
-        
+
         # SCD2 with only valid_from has confidence ~0.4, should be excluded
-        scd2_patterns = [p for p in patterns if p.pattern_type == PatternType.SCD_TYPE_2]
+        scd2_patterns = [
+            p for p in patterns if p.pattern_type == PatternType.SCD_TYPE_2
+        ]
         assert len(scd2_patterns) == 0
 
 
@@ -683,7 +684,7 @@ class TestPatternSignal:
             weight=0.8,
             columns=("col1", "col2"),
         )
-        
+
         assert signal.name == "test_signal"
         assert signal.weight == 0.8
         assert len(signal.columns) == 2
@@ -699,7 +700,7 @@ class TestDetectedPattern:
             table="public.test",
             confidence=0.9,
         )
-        
+
         assert pattern.category == PatternCategory.TEMPORAL
 
     def test_is_confident(self) -> None:
@@ -714,7 +715,7 @@ class TestDetectedPattern:
             table="public.test",
             confidence=0.5,
         )
-        
+
         assert confident.is_confident
         assert not not_confident.is_confident
 
@@ -725,9 +726,9 @@ class TestDetectedPattern:
             table="public.orders",
             confidence=0.85,
         )
-        
+
         summary = pattern.summary()
-        
+
         assert "public.orders" in summary
         assert "AUDIT_TIMESTAMPS" in summary
         assert "85%" in summary
@@ -769,9 +770,9 @@ class TestPolymorphicEdgeCases:
                 ),
             ],
         )
-        
+
         result = _detect_polymorphic(table)
-        
+
         assert result is not None
         assert any(s.name == "multiple_nullable_fks" for s in result.signals)
 
@@ -785,11 +786,11 @@ class TestPolymorphicEdgeCases:
                 # No _id columns, no nullable FKs
             ],
         )
-        
+
         # Type discriminator alone (0.6) is above 0.4 threshold, so it's detected
         result = _detect_polymorphic(table)
-        
-        # With only type column (0.6 weight), it should be detected 
+
+        # With only type column (0.6 weight), it should be detected
         assert result is not None
 
 
@@ -807,10 +808,10 @@ class TestTreeStructureEdgeCases:
             ],
             foreign_keys=[],  # No FK for manager_id
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         result = _detect_tree_structure(table, graph)
-        
+
         assert result is not None
         assert any(s.name == "parent_column" for s in result.signals)
         assert result.confidence >= 0.4
@@ -827,12 +828,12 @@ class TestPatternDetectorEdgeCases:
                 make_column("id", DataTypeCategory.INTEGER),
             ],
         )
-        
+
         detector = PatternDetector()
-        
+
         # SCD_TYPE_1, SCD_TYPE_3, VERSIONED, EAV, etc are not implemented
         result = detector.detect_pattern(table, PatternType.SCD_TYPE_1)
-        
+
         assert result is None
 
     def test_detect_pattern_below_confidence_returns_none(self) -> None:
@@ -841,12 +842,13 @@ class TestPatternDetectorEdgeCases:
             "records",
             columns=[
                 make_column("id", DataTypeCategory.INTEGER),
-                make_column("valid_from", DataTypeCategory.TIMESTAMP),  # Only 0.4 confidence
+                make_column(
+                    "valid_from", DataTypeCategory.TIMESTAMP
+                ),  # Only 0.4 confidence
             ],
         )
-        
+
         detector = PatternDetector(min_confidence=0.8)
         result = detector.detect_pattern(table, PatternType.SCD_TYPE_2)
-        
-        assert result is None
 
+        assert result is None

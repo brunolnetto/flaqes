@@ -8,7 +8,7 @@ When adding a new pattern detector (e.g., detecting SCD Type 2 tables):
 
 ## 1. Define the Pattern
 
-In `flakes/patterns/`, create or update the appropriate module:
+In `flaqes/patterns/`, create or update the appropriate module:
 - `temporal.py` for time-related patterns
 - `normalization.py` for normalization patterns  
 - `relational.py` for relationship patterns
@@ -17,8 +17,8 @@ In `flakes/patterns/`, create or update the appropriate module:
 ## 2. Implement the Detector
 
 ```python
-from flakes.core.schema_graph import Table
-from flakes.patterns.base import PatternMatch, PatternDetector
+from flaqes.core.schema_graph import Table
+from flaqes.patterns.base import PatternMatch, PatternDetector
 
 class SCDType2Detector(PatternDetector):
     """Detects Slowly Changing Dimension Type 2 patterns."""
@@ -49,7 +49,7 @@ class SCDType2Detector(PatternDetector):
 
 ## 3. Register the Detector
 
-Add to `flakes/patterns/__init__.py`:
+Add to `flaqes/patterns/__init__.py`:
 ```python
 from .temporal import SCDType2Detector
 

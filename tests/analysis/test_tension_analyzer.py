@@ -1,24 +1,22 @@
 """Tests for tension analyzer module."""
 
-import pytest
-
-from flakes.analysis.tension_analyzer import (
+from flaqes.analysis.tension_analyzer import (
     Alternative,
     DesignTension,
     Effort,
     TensionAnalyzer,
     TensionSignal,
-    _detect_wide_table,
-    _detect_missing_indexes,
-    _detect_nullable_foreign_key,
+    _detect_denormalization,
     _detect_jsonb_overuse,
     _detect_missing_audit_columns,
+    _detect_missing_indexes,
     _detect_no_primary_key,
+    _detect_nullable_foreign_key,
     _detect_text_without_constraint,
-    _detect_denormalization,
+    _detect_wide_table,
 )
-from flakes.core.intent import Intent
-from flakes.core.schema_graph import (
+from flaqes.core.intent import Intent
+from flaqes.core.schema_graph import (
     Column,
     DataType,
     ForeignKey,
@@ -27,8 +25,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import DataTypeCategory, Severity, TensionCategory
-
+from flaqes.core.types import DataTypeCategory, Severity, TensionCategory
 
 # =============================================================================
 # Helper Functions
@@ -82,9 +79,9 @@ class TestWideTableDetection:
             "users",
             columns=[make_column(f"col{i}") for i in range(10)],
         )
-        
+
         result = _detect_wide_table(table, None)
-        
+
         assert result is None
 
     def test_wide_table_warning(self) -> None:
@@ -93,9 +90,9 @@ class TestWideTableDetection:
             "orders",
             columns=[make_column(f"col{i}") for i in range(35)],
         )
-        
+
         result = _detect_wide_table(table, None)
-        
+
         assert result is not None
         assert result.severity == Severity.WARNING
         assert result.category == TensionCategory.PERFORMANCE
@@ -106,9 +103,9 @@ class TestWideTableDetection:
             "mega_table",
             columns=[make_column(f"col{i}") for i in range(65)],
         )
-        
+
         result = _detect_wide_table(table, None)
-        
+
         assert result is not None
         assert result.severity == Severity.CRITICAL
 
@@ -118,7 +115,7 @@ class TestWideTableDetection:
             "analytics",
             columns=[make_column(f"col{i}") for i in range(45)],
         )
-        
+
         intent = Intent(
             workload="OLAP",
             write_frequency="low",
@@ -128,9 +125,9 @@ class TestWideTableDetection:
             data_volume="large",
             engine="postgresql",
         )
-        
+
         result = _detect_wide_table(table, intent)
-        
+
         # 45 columns should be OK for OLAP (threshold is 50)
         assert result is None
 
@@ -170,9 +167,9 @@ class TestMissingIndexDetection:
                 ),
             ],
         )
-        
+
         result = _detect_missing_indexes(table, [], None)
-        
+
         assert len(result) == 0
 
     def test_fk_without_index_warning(self) -> None:
@@ -193,9 +190,9 @@ class TestMissingIndexDetection:
                 ),
             ],
         )
-        
+
         result = _detect_missing_indexes(table, [], None)
-        
+
         assert len(result) == 1
         assert result[0].severity == Severity.WARNING
         assert "customer_id" in result[0].columns
@@ -218,7 +215,7 @@ class TestMissingIndexDetection:
                 ),
             ],
         )
-        
+
         intent = Intent(
             workload="OLTP",
             write_frequency="high",
@@ -228,9 +225,9 @@ class TestMissingIndexDetection:
             data_volume="medium",
             engine="postgresql",
         )
-        
+
         result = _detect_missing_indexes(table, [], intent)
-        
+
         assert len(result) == 1
         assert result[0].severity == Severity.CRITICAL
 
@@ -261,9 +258,9 @@ class TestNullableFKDetection:
                 ),
             ],
         )
-        
+
         result = _detect_nullable_foreign_key(table, None)
-        
+
         assert len(result) == 1
         assert result[0].severity == Severity.INFO
         assert result[0].category == TensionCategory.CONSISTENCY
@@ -286,9 +283,9 @@ class TestNullableFKDetection:
                 ),
             ],
         )
-        
+
         result = _detect_nullable_foreign_key(table, None)
-        
+
         assert len(result) == 0
 
 
@@ -309,9 +306,9 @@ class TestJSONBOveruseDetection:
                 make_column("name", DataTypeCategory.TEXT),
             ],
         )
-        
+
         result = _detect_jsonb_overuse(table, None)
-        
+
         assert result is None
 
     def test_single_json_no_tension(self) -> None:
@@ -325,9 +322,9 @@ class TestJSONBOveruseDetection:
                 make_column("metadata", DataTypeCategory.JSON),
             ],
         )
-        
+
         result = _detect_jsonb_overuse(table, None)
-        
+
         # 1/4 = 25%, below 30% threshold
         assert result is None
 
@@ -341,9 +338,9 @@ class TestJSONBOveruseDetection:
                 make_column("data2", DataTypeCategory.JSON),
             ],
         )
-        
+
         result = _detect_jsonb_overuse(table, None)
-        
+
         # 2/3 = 67%, above 50% threshold
         assert result is not None
         assert result.severity == Severity.CRITICAL
@@ -367,9 +364,9 @@ class TestMissingAuditColumnsDetection:
                 make_column("updated_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_missing_audit_columns(table, None)
-        
+
         assert result is None
 
     def test_missing_created_at(self) -> None:
@@ -381,9 +378,9 @@ class TestMissingAuditColumnsDetection:
                 make_column("updated_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_missing_audit_columns(table, None)
-        
+
         assert result is not None
         assert "created_at" in result.description
 
@@ -396,9 +393,9 @@ class TestMissingAuditColumnsDetection:
                 make_column("created_at", DataTypeCategory.TIMESTAMP),
             ],
         )
-        
+
         result = _detect_missing_audit_columns(table, None)
-        
+
         assert result is not None
         assert "updated_at" in result.description
 
@@ -421,9 +418,9 @@ class TestNoPrimaryKeyDetection:
             ],
             primary_key=PrimaryKey(name=None, columns=("id",)),
         )
-        
+
         result = _detect_no_primary_key(table, None)
-        
+
         assert result is None
 
     def test_missing_primary_key(self) -> None:
@@ -435,9 +432,9 @@ class TestNoPrimaryKeyDetection:
                 make_column("message", DataTypeCategory.TEXT),
             ],
         )
-        
+
         result = _detect_no_primary_key(table, None)
-        
+
         assert result is not None
         assert result.severity == Severity.CRITICAL
         assert result.id == "no_primary_key"
@@ -460,9 +457,9 @@ class TestTextWithoutConstraintDetection:
                 make_column("content", DataTypeCategory.TEXT, raw="text"),
             ],
         )
-        
+
         result = _detect_text_without_constraint(table, None)
-        
+
         assert len(result) == 1
         assert result[0].severity == Severity.INFO
 
@@ -475,9 +472,9 @@ class TestTextWithoutConstraintDetection:
                 make_column("name", DataTypeCategory.TEXT, raw="varchar(255)"),
             ],
         )
-        
+
         result = _detect_text_without_constraint(table, None)
-        
+
         # varchar(255) has explicit length, should not trigger
         assert len(result) == 0
 
@@ -501,10 +498,10 @@ class TestDenormalizationDetection:
                 make_column("shipping_name", DataTypeCategory.TEXT),
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         result = _detect_denormalization(table, graph, None)
-        
+
         assert len(result) == 1
         assert result[0].category == TensionCategory.NORMALIZATION
 
@@ -517,10 +514,10 @@ class TestDenormalizationDetection:
                 make_column("customer_name", DataTypeCategory.TEXT),
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         result = _detect_denormalization(table, graph, None)
-        
+
         assert len(result) == 0
 
 
@@ -552,12 +549,12 @@ class TestTensionAnalyzer:
                 ),
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         analyzer = TensionAnalyzer()
-        
+
         tensions = analyzer.analyze_table(table, graph)
-        
+
         assert len(tensions) >= 1  # Should detect something
 
     def test_analyze_returns_dict(self) -> None:
@@ -571,12 +568,12 @@ class TestTensionAnalyzer:
             columns=[make_column("id", DataTypeCategory.INTEGER)],
             primary_key=PrimaryKey(name=None, columns=("id",)),
         )
-        
+
         graph = SchemaGraph.from_tables([table1, table2])
         analyzer = TensionAnalyzer()
-        
+
         results = analyzer.analyze(graph)
-        
+
         assert "public.no_pk" in results
         # Table with PK might have fewer or no tensions
 
@@ -589,17 +586,17 @@ class TestTensionAnalyzer:
                 make_column("content", DataTypeCategory.TEXT, raw="text"),
             ],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
-        
+
         # With INFO threshold, should include text constraint tension
         analyzer_info = TensionAnalyzer(min_severity=Severity.INFO)
         tensions_info = analyzer_info.analyze_table(table, graph)
-        
+
         # With WARNING threshold, should exclude INFO tensions
         analyzer_warn = TensionAnalyzer(min_severity=Severity.WARNING)
         tensions_warn = analyzer_warn.analyze_table(table, graph)
-        
+
         # WARNING filter should have fewer or equal tensions
         assert len(tensions_warn) <= len(tensions_info)
 
@@ -609,12 +606,12 @@ class TestTensionAnalyzer:
             "test",
             columns=[make_column("data", DataTypeCategory.TEXT, raw="text")],
         )
-        
+
         graph = SchemaGraph.from_tables([table])
         analyzer = TensionAnalyzer()
-        
+
         summary = analyzer.get_summary(graph)
-        
+
         assert "total" in summary
         assert "critical" in summary
         assert "warning" in summary
@@ -637,7 +634,7 @@ class TestAlternative:
             effort=Effort.LOW,
             example_ddl="CREATE INDEX ...",
         )
-        
+
         assert alt.description == "Add an index"
         assert alt.effort == Effort.LOW
 
@@ -648,9 +645,9 @@ class TestAlternative:
             trade_off="More JOINs",
             effort=Effort.HIGH,
         )
-        
+
         summary = alt.summary()
-        
+
         assert "high" in summary.lower()
 
 
@@ -669,7 +666,7 @@ class TestDesignTension:
             severity=Severity.CRITICAL,
             table="public.test",
         )
-        
+
         assert tension.is_critical
         assert not tension.is_warning
 
@@ -685,7 +682,7 @@ class TestDesignTension:
             severity=Severity.WARNING,
             table="public.test",
         )
-        
+
         assert not tension.is_critical
         assert tension.is_warning
 
@@ -701,9 +698,9 @@ class TestDesignTension:
             severity=Severity.WARNING,
             table="public.orders",
         )
-        
+
         summary = tension.summary()
-        
+
         assert "WARNING" in summary
         assert "public.orders" in summary
 
@@ -718,7 +715,7 @@ class TestTensionSignal:
             description="A test signal",
             severity_weight=0.5,
         )
-        
+
         assert signal.name == "test"
         assert signal.severity_weight == 0.5
 

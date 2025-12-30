@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 import asyncpg
 
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     Constraint,
     DataType,
@@ -21,13 +21,13 @@ from flakes.core.schema_graph import (
     PrimaryKey,
     Table,
 )
-from flakes.core.types import ConstraintType, DataTypeCategory, IndexMethod
-from flakes.introspection.base import (
-    Introspector,
+from flaqes.core.types import ConstraintType, DataTypeCategory, IndexMethod
+from flaqes.introspection.base import (
     IntrospectionConfig,
     IntrospectionError,
+    Introspector,
 )
-from flakes.introspection.registry import register_introspector
+from flaqes.introspection.registry import register_introspector
 
 if TYPE_CHECKING:
     from asyncpg import Connection
@@ -115,24 +115,24 @@ _TYPE_CATEGORY_MAP: dict[str, DataTypeCategory] = {
 def _categorize_type(type_name: str) -> tuple[DataTypeCategory, bool, str | None]:
     """
     Categorize a PostgreSQL type name.
-    
+
     Returns:
         Tuple of (category, is_array, element_type)
     """
     # Normalize type name
     type_lower = type_name.lower().strip()
-    
+
     # Check for array types
     if type_lower.endswith("[]"):
         element_type = type_lower[:-2]
         element_category = _TYPE_CATEGORY_MAP.get(element_type, DataTypeCategory.OTHER)
         return DataTypeCategory.ARRAY, True, element_type
-    
+
     # Check for array notation with underscore prefix
     if type_lower.startswith("_"):
         element_type = type_lower[1:]
         return DataTypeCategory.ARRAY, True, element_type
-    
+
     # Look up in category map
     category = _TYPE_CATEGORY_MAP.get(type_lower, DataTypeCategory.OTHER)
     return category, False, None
@@ -294,10 +294,10 @@ GROUP BY n.nspname, tc.relname, ic.relname, am.amname, i.indisunique, i.indispri
 class PostgreSQLIntrospector(Introspector):
     """
     PostgreSQL database introspector.
-    
+
     Uses asyncpg for async database access and queries the PostgreSQL
     system catalogs directly for comprehensive schema information.
-    
+
     Example:
         >>> async with PostgreSQLIntrospector("postgresql://localhost/mydb") as pg:
         ...     result = await pg.introspect()
@@ -352,21 +352,18 @@ class PostgreSQLIntrospector(Introspector):
     ) -> bool:
         """Check if a table should be included based on config."""
         fqn = f"{schema_name}.{table_name}"
-        
+
         # Check explicit includes
         if config.include_tables is not None:
-            return (
-                table_name in config.include_tables
-                or fqn in config.include_tables
-            )
-        
+            return table_name in config.include_tables or fqn in config.include_tables
+
         # Check excludes
         for pattern in config.exclude_tables:
             if fnmatch.fnmatch(table_name, pattern):
                 return False
             if fnmatch.fnmatch(fqn, pattern):
                 return False
-        
+
         return True
 
     async def _introspect_tables(
@@ -403,7 +400,7 @@ class PostgreSQLIntrospector(Introspector):
         columns_by_table: dict[str, list[Column]] = {}
         for row in column_rows:
             table_fqn = row["table_fqn"]
-            
+
             # Parse data type
             category, is_array, element_type = _categorize_type(row["type_name"])
             data_type = DataType(
@@ -412,7 +409,7 @@ class PostgreSQLIntrospector(Introspector):
                 is_array=is_array,
                 element_type=element_type,
             )
-            
+
             column = Column(
                 name=row["column_name"],
                 data_type=data_type,
@@ -423,7 +420,7 @@ class PostgreSQLIntrospector(Introspector):
                 comment=row["column_comment"] if config.include_comments else None,
                 ordinal_position=row["ordinal_position"],
             )
-            
+
             if table_fqn not in columns_by_table:
                 columns_by_table[table_fqn] = []
             columns_by_table[table_fqn].append(column)
@@ -433,18 +430,20 @@ class PostgreSQLIntrospector(Introspector):
         for row in table_rows:
             table_name = row["table_name"]
             schema_name = row["schema_name"]
-            
+
             if not self._should_include_table(table_name, schema_name, config):
                 continue
-            
+
             fqn = f"{schema_name}.{table_name}"
-            
+
             table = Table(
                 name=table_name,
                 schema=schema_name,
                 columns=columns_by_table.get(fqn, []),
                 comment=row["table_comment"] if config.include_comments else None,
-                row_estimate=row["row_estimate"] if config.include_row_estimates else None,
+                row_estimate=row["row_estimate"]
+                if config.include_row_estimates
+                else None,
             )
             tables.append(table)
 
@@ -474,7 +473,7 @@ class PostgreSQLIntrospector(Introspector):
 
         # Fetch foreign keys
         fk_rows = await self._conn.fetch(_FOREIGN_KEYS_QUERY, list(config.schemas))
-        
+
         # Map action codes to names
         action_map = {
             "a": "NO ACTION",
@@ -483,7 +482,7 @@ class PostgreSQLIntrospector(Introspector):
             "n": "SET NULL",
             "d": "SET DEFAULT",
         }
-        
+
         for row in fk_rows:
             table_fqn = row["source_table"]
             if table_fqn in table_lookup:
@@ -494,7 +493,7 @@ class PostgreSQLIntrospector(Introspector):
                 else:
                     target_schema = "public"
                     target_table = target_fqn
-                
+
                 fk = ForeignKey(
                     name=row["constraint_name"],
                     columns=tuple(row["source_columns"]),
@@ -548,17 +547,17 @@ class PostgreSQLIntrospector(Introspector):
 
         # Fetch indexes
         index_rows = await self._conn.fetch(_INDEXES_QUERY, list(config.schemas))
-        
+
         for row in index_rows:
             table_fqn = row["table_fqn"]
             if table_fqn not in table_lookup:
                 continue
-            
+
             table = table_lookup[table_fqn]
-            
+
             columns = tuple(row["columns"]) if row["columns"] else ()
             expressions = tuple(row["expressions"]) if row["expressions"] else ()
-            
+
             index = Index(
                 name=row["index_name"],
                 table_schema=table.schema,

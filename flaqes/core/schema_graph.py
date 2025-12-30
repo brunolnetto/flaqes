@@ -9,13 +9,12 @@ or interpretation happens at this layer.
 from dataclasses import dataclass, field
 from typing import Self
 
-from flakes.core.types import (
+from flaqes.core.types import (
     Cardinality,
     ConstraintType,
     DataTypeCategory,
     IndexMethod,
 )
-
 
 # =============================================================================
 # Column & Data Type
@@ -26,7 +25,7 @@ from flakes.core.types import (
 class DataType:
     """
     Represents a column's data type with both raw and categorized forms.
-    
+
     We keep the raw type string for exact matching and reporting,
     while the category enables pattern matching without caring about
     specific type variants.
@@ -209,8 +208,8 @@ class Index:
 class Table:
     """
     Represents a database table with all its structural components.
-    
-    This is the central unit of analysis in flakes. All pattern
+
+    This is the central unit of analysis in flaqes. All pattern
     detection and tension analysis operates on Table instances.
     """
 
@@ -305,7 +304,7 @@ class Table:
 class Relationship:
     """
     Represents a relationship between two tables.
-    
+
     Derived from foreign keys but enriched with cardinality
     and identifying relationship status.
     """
@@ -335,8 +334,8 @@ class Relationship:
 class SchemaGraph:
     """
     Complete schema graph representing a database's structure.
-    
-    This is the primary input to flakes' analysis pipeline.
+
+    This is the primary input to flaqes' analysis pipeline.
     It contains all tables, relationships, and structural facts
     extracted from database introspection.
     """
@@ -382,7 +381,7 @@ class SchemaGraph:
     def neighborhood(self, table_fqn: str, depth: int = 1) -> set[str]:
         """
         Get the neighborhood of a table up to a given FK depth.
-        
+
         Returns fully qualified names of all tables within `depth` FK hops.
         """
         visited: set[str] = {table_fqn}
@@ -406,7 +405,7 @@ class SchemaGraph:
     def from_tables(cls, tables: list[Table]) -> Self:
         """
         Create a SchemaGraph from a list of tables.
-        
+
         Relationships are inferred from foreign keys.
         """
         graph = cls()
@@ -434,9 +433,8 @@ class SchemaGraph:
                 )
 
                 # Check if FK is part of PK (identifying relationship)
-                is_identifying = (
-                    table.primary_key is not None
-                    and any(col in table.primary_key.columns for col in fk.columns)
+                is_identifying = table.primary_key is not None and any(
+                    col in table.primary_key.columns for col in fk.columns
                 )
 
                 graph.relationships.append(

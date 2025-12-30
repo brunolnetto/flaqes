@@ -2,19 +2,19 @@
 
 import pytest
 
-from flakes.analysis.role_detector import (
+from flaqes.analysis.role_detector import (
     RoleDetector,
     Signal,
     SignalType,
     TableRoleResult,
-    _detect_junction_signals,
-    _detect_fact_signals,
     _detect_dimension_signals,
     _detect_event_signals,
-    _detect_scd_type2_signals,
+    _detect_fact_signals,
+    _detect_junction_signals,
     _detect_lookup_signals,
+    _detect_scd_type2_signals,
 )
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     DataType,
     ForeignKey,
@@ -22,8 +22,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import DataTypeCategory, RoleType
-
+from flaqes.core.types import DataTypeCategory, RoleType
 
 # =============================================================================
 # Fixtures - Table Builders
@@ -66,7 +65,7 @@ def make_table(
 ) -> Table:
     """
     Helper to create a table quickly.
-    
+
     Args:
         name: Table name
         columns: List of columns. If None, creates just an 'id' column.
@@ -77,24 +76,26 @@ def make_table(
     """
     if columns is None:
         columns = [make_column("id", DataTypeCategory.INTEGER, False, True)]
-    
+
     pk = None
     if pk_columns:
         pk = PrimaryKey(name=f"{name}_pkey", columns=pk_columns)
     elif any(c.name == "id" for c in columns):
         pk = PrimaryKey(name=f"{name}_pkey", columns=("id",))
-    
+
     fks = []
     if fk_targets:
         for col_name, target_table in fk_targets:
-            fks.append(ForeignKey(
-                name=f"{name}_{col_name}_fkey",
-                columns=(col_name,),
-                target_schema="public",
-                target_table=target_table,
-                target_columns=("id",),
-            ))
-    
+            fks.append(
+                ForeignKey(
+                    name=f"{name}_{col_name}_fkey",
+                    columns=(col_name,),
+                    target_schema="public",
+                    target_table=target_table,
+                    target_columns=("id",),
+                )
+            )
+
     return Table(
         name=name,
         schema=schema,
@@ -722,16 +723,25 @@ class TestJunctionPKSubsetOfFKs:
             primary_key=PrimaryKey(name="pk", columns=("user_id", "role_id")),
             foreign_keys=[
                 ForeignKey(
-                    name="fk1", columns=("user_id",),
-                    target_schema="public", target_table="users", target_columns=("id",)
+                    name="fk1",
+                    columns=("user_id",),
+                    target_schema="public",
+                    target_table="users",
+                    target_columns=("id",),
                 ),
                 ForeignKey(
-                    name="fk2", columns=("role_id",),
-                    target_schema="public", target_table="roles", target_columns=("id",)
+                    name="fk2",
+                    columns=("role_id",),
+                    target_schema="public",
+                    target_table="roles",
+                    target_columns=("id",),
                 ),
                 ForeignKey(
-                    name="fk3", columns=("extra_id",),
-                    target_schema="public", target_table="extras", target_columns=("id",)
+                    name="fk3",
+                    columns=("extra_id",),
+                    target_schema="public",
+                    target_table="extras",
+                    target_columns=("id",),
                 ),
             ],
         )
@@ -862,7 +872,7 @@ class TestDetectWithValidation:
                 make_column("location", DataTypeCategory.TEXT),
             ],
         )
-        
+
         # Create fact table
         sales = make_table(
             "sales_facts",
@@ -908,4 +918,3 @@ class TestDetectWithValidation:
         # Should not have references_dimensions (not a FACT)
         signal_names = {s.name for s in result.signals}
         assert "references_dimensions" not in signal_names
-

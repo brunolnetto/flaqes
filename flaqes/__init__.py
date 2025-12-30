@@ -1,12 +1,11 @@
 """
-flakes - A schema critic for PostgreSQL databases.
+flaqes - A schema critic for PostgreSQL databases.
 
-flakes analyzes database structures and surfaces design tensions,
+flaqes analyzes database structures and surfaces design tensions,
 trade-offs, and alternative approaches based on your stated intent.
 """
 
-from flakes.api import analyze_schema, introspect_schema
-from flakes.analysis import (
+from flaqes.analysis import (
     Alternative,
     DesignTension,
     DetectedPattern,
@@ -21,8 +20,9 @@ from flakes.analysis import (
     TensionAnalyzer,
     TensionSignal,
 )
-from flakes.core.intent import Intent
-from flakes.core.schema_graph import (
+from flaqes.api import analyze_schema, introspect_schema
+from flaqes.core.intent import Intent
+from flaqes.core.schema_graph import (
     Column,
     Constraint,
     ForeignKey,
@@ -32,7 +32,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import (
+from flaqes.core.types import (
     Cardinality,
     ConstraintType,
     DataTypeCategory,
@@ -41,22 +41,22 @@ from flakes.core.types import (
     Severity,
     TensionCategory,
 )
-from flakes.introspection import (
+from flaqes.introspection import (
     Introspector,
     IntrospectorProtocol,
     get_introspector,
     register_introspector,
 )
-from flakes.introspection.base import (
+from flaqes.introspection.base import (
     IntrospectionConfig,
     IntrospectionError,
     IntrospectionResult,
 )
-from flakes.report import SchemaReport, generate_report
+from flaqes.report import SchemaReport, generate_report
 
 # Database-specific introspectors are registered lazily.
 # Import them explicitly to register:
-#   import flakes.introspection.postgresql
+#   import flaqes.introspection.postgresql
 # Or use get_introspector() which auto-registers on first use.
 
 __version__ = "0.1.0"
@@ -111,5 +111,3 @@ __all__ = [
     "SchemaReport",
     "generate_report",
 ]
-
-

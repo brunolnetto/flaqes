@@ -2,24 +2,22 @@
 
 import pytest
 
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     Constraint,
     DataType,
     ForeignKey,
     Index,
     PrimaryKey,
-    Relationship,
     SchemaGraph,
     Table,
 )
-from flakes.core.types import (
+from flaqes.core.types import (
     Cardinality,
     ConstraintType,
     DataTypeCategory,
     IndexMethod,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -156,7 +154,7 @@ class TestColumn:
 
 
 # =============================================================================
-# PrimaryKey Tests  
+# PrimaryKey Tests
 # =============================================================================
 
 
@@ -381,9 +379,7 @@ class TestSchemaGraph:
         assert len(referenced) == 1
         assert referenced[0].name == "customers"
 
-    def test_neighborhood(
-        self, sample_table: Table, customers_table: Table
-    ) -> None:
+    def test_neighborhood(self, sample_table: Table, customers_table: Table) -> None:
         graph = SchemaGraph.from_tables([sample_table, customers_table])
 
         # Depth 1 from orders should include customers
@@ -541,7 +537,9 @@ class TestHasNaturalKey:
             columns=[
                 Column(
                     name="id",
-                    data_type=DataType(raw="integer", category=DataTypeCategory.INTEGER),
+                    data_type=DataType(
+                        raw="integer", category=DataTypeCategory.INTEGER
+                    ),
                     nullable=False,
                     is_identity=True,
                 ),
@@ -600,4 +598,3 @@ class TestNeighborhoodBidirectional:
         neighborhood = graph.neighborhood("public.customers", depth=1)
         assert "public.customers" in neighborhood
         assert "public.orders" in neighborhood
-

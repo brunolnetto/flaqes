@@ -1,0 +1,141 @@
+"""
+Main API for flakes schema analysis.
+
+This module provides the primary entry point for analyzing database schemas.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from flakes.core.intent import Intent
+from flakes.core.schema_graph import SchemaGraph
+from flakes.introspection import get_introspector
+from flakes.introspection.base import IntrospectionConfig
+from flakes.report import SchemaReport, generate_report
+
+if TYPE_CHECKING:
+    from flakes.introspection.base import Introspector
+
+
+async def analyze_schema(
+    dsn: str,
+    intent: Intent | None = None,
+    tables: list[str] | None = None,
+    schemas: list[str] | None = None,
+    exclude_patterns: list[str] | None = None,
+) -> SchemaReport:
+    """
+    Analyze a database schema and generate a comprehensive report.
+    
+    This is the main entry point for flakes. It:
+    1. Introspects the database to build a SchemaGraph
+    2. Detects table roles (fact, dimension, event, etc.)
+    3. Identifies design patterns (SCD, soft delete, etc.)
+    4. Analyzes design tensions based on stated intent
+    5. Generates a structured report
+    
+    Args:
+        dsn: Database connection string (e.g., "postgresql://user:pass@host/db")
+        intent: Optional Intent specifying workload characteristics.
+                If not provided, default intent is used (less contextual advice).
+        tables: Optional list of specific tables to analyze.
+                If None, analyzes all tables.
+        schemas: Optional list of schemas to include.
+                 If None, uses default schema for the database.
+        exclude_patterns: Optional list of patterns to exclude (e.g., ["tmp_*", "staging_*"])
+    
+    Returns:
+        SchemaReport containing all analysis results, including:
+        - Table roles with confidence scores
+        - Detected design patterns
+        - Design tensions with alternatives
+        - Summary statistics
+    
+    Raises:
+        IntrospectionError: If database connection or introspection fails
+        ValueError: If intent is invalid
+    
+    Example:
+        >>> import asyncio
+        >>> from flakes import analyze_schema, Intent
+        >>> 
+        >>> async def main():
+        ...     intent = Intent(
+        ...         workload="OLAP",
+        ...         write_frequency="low",
+        ...         read_patterns=["aggregation", "range_scan"],
+        ...         data_volume="large",
+        ...     )
+        ...     
+        ...     report = await analyze_schema(
+        ...         dsn="postgresql://localhost/mydb",
+        ...         intent=intent,
+        ...     )
+        ...     
+        ...     print(report.to_markdown())
+        ...     
+        ... asyncio.run(main())
+    """
+    # Get the appropriate introspector for the DSN
+    introspector: Introspector = get_introspector(dsn)
+    
+    # Configure introspection
+    config = IntrospectionConfig(
+        tables=tables,
+        schemas=schemas,
+        exclude_patterns=exclude_patterns or [],
+    )
+    
+    # Connect and introspect
+    async with introspector:
+        result = await introspector.introspect(config)
+    
+    # Build schema graph from introspection result
+    graph = SchemaGraph.from_tables(result.tables)
+    
+    # Generate and return report
+    return generate_report(graph, intent=intent)
+
+
+async def introspect_schema(
+    dsn: str,
+    tables: list[str] | None = None,
+    schemas: list[str] | None = None,
+    exclude_patterns: list[str] | None = None,
+) -> SchemaGraph:
+    """
+    Introspect a database and return the raw SchemaGraph.
+    
+    This is a lower-level API for users who want just the structural
+    facts without analysis. Useful for:
+    - Building custom analysis tools
+    - Exporting schema metadata
+    - Integration with other tools
+    
+    Args:
+        dsn: Database connection string
+        tables: Optional list of specific tables
+        schemas: Optional list of schemas to include
+        exclude_patterns: Optional list of patterns to exclude
+    
+    Returns:
+        SchemaGraph containing all structural information
+    
+    Example:
+        >>> graph = await introspect_schema("postgresql://localhost/mydb")
+        >>> for table in graph:
+        ...     print(f"{table.name}: {len(table.columns)} columns")
+    """
+    introspector: Introspector = get_introspector(dsn)
+    
+    config = IntrospectionConfig(
+        tables=tables,
+        schemas=schemas,
+        exclude_patterns=exclude_patterns or [],
+    )
+    
+    async with introspector:
+        result = await introspector.introspect(config)
+    
+    return SchemaGraph.from_tables(result.tables)

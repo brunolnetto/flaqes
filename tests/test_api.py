@@ -2,9 +2,9 @@
 
 import pytest
 
-from flakes.api import analyze_schema, introspect_schema
-from flakes.core.intent import Intent
-from flakes.report import SchemaReport
+from flaqes.api import analyze_schema, introspect_schema
+from flaqes.core.intent import Intent
+from flaqes.report import SchemaReport
 
 
 @pytest.mark.asyncio

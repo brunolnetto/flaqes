@@ -1,12 +1,12 @@
-# flakes Implementation Plan
+# flaqes Implementation Plan
 
-> **Version:** 0.1.0-draft  
+> **Version:** 0.1.0  
 > **Created:** 2025-12-29  
-> **Status:** Planning
+> **Status:** Complete ✅
 
 ## 1. Vision
 
-**flakes** is a Python library that acts as a *schema critic* — not a validator or linter, but a tool that:
+**flaqes** is a Python library that acts as a *schema critic* — not a validator or linter, but a tool that:
 
 - **Explains** why a database structure is the way it is
 - **Surfaces trade-offs** inherent in the current design
@@ -18,14 +18,14 @@ The key differentiator: **understanding intent before giving advice**.
 
 ## 2. Non-Goals (Explicit Constraints)
 
-| ❌ What flakes is NOT | Why |
+| ❌ What flaqes is NOT | Why |
 |------------------------|-----|
 | Migration tool | Combinatorially complex, already solved by Alembic/Flyway |
 | Schema formatter | Cosmetic, low value |
 | SQL linter | Syntax-level, not design-level |
 | Automatic refactoring | Too opinionated, dangerous without human review |
 
-flakes **analyzes and reasons**. It never mutates.
+flaqes **analyzes and reasons**. It never mutates.
 
 ---
 
@@ -152,7 +152,7 @@ Alternative
 ## 5. Architecture
 
 ```
-flakes/
+flaqes/
 ├── __init__.py           # Public API
 ├── core/
 │   ├── intent.py         # Intent dataclass and validation
@@ -215,17 +215,18 @@ flakes/
 - [x] Evolution tension detector (rigid schemas, JSONB escape hatches)
 - [x] Intent-aware severity scoring
 
-### Phase 5: Reporting
-- [ ] Structured report generation
-- [ ] Markdown output
-- [ ] JSON output for tooling integration
-- [ ] Summary vs detailed views
+### Phase 5: Reporting (Complete ✅)
+- [x] Structured report generation
+- [x] Markdown output
+- [x] JSON output for tooling integration
+- [x] Summary vs detailed views
 
-### Phase 6: Polish
-- [ ] CLI interface
-- [ ] DDL parsing (for offline analysis)
-- [ ] Documentation
-- [ ] Test suite
+### Phase 6: Polish (Complete ✅)
+- [x] CLI interface
+- [x] DDL parsing (for offline analysis)
+- [x] Test suite (100% coverage)
+- [x] Integration tests with testcontainers
+- [x] Documentation enhancements (README, API docs)
 - [ ] PyPI release
 
 ---
@@ -258,7 +259,7 @@ flakes/
 
 ```python
 import asyncio
-from flakes import analyze_schema, Intent
+from flaqes import analyze_schema, Intent
 
 async def main():
     intent = Intent(
@@ -299,24 +300,24 @@ asyncio.run(main())
 ## 9. Open Questions
 
 1. **Scope of "table neighbors"**: Should analysis include FK depth 1, depth 2, or configurable?
-2. **Data sampling**: Should flakes optionally sample data to validate hypotheses (e.g., cardinality estimates)?
-3. **Historical analysis**: Should flakes track schema changes over time?
+2. **Data sampling**: Should flaqes optionally sample data to validate hypotheses (e.g., cardinality estimates)?
+3. **Historical analysis**: Should flaqes track schema changes over time?
 4. **Multi-database support**: Priority of MySQL, SQLite after PostgreSQL?
-5. **LLM integration**: Built-in optional module, or separate package (`flakes-llm`)?
+5. **LLM integration**: Built-in optional module, or separate package (`flaqes-llm`)?
 
 ---
 
 ## 10. Success Criteria for v0.1.0
 
-- [ ] Can introspect a PostgreSQL database
-- [ ] Can build a complete SchemaGraph
-- [ ] Can detect 3+ table roles with confidence scores
-- [ ] Can detect 3+ design patterns
-- [ ] Can generate 3+ design tensions
-- [ ] Produces useful markdown report
-- [ ] Has test coverage for core functionality
-- [ ] Documentation with examples
+- [x] Can introspect a PostgreSQL database
+- [x] Can build a complete SchemaGraph
+- [x] Can detect 3+ table roles with confidence scores
+- [x] Can detect 3+ design patterns
+- [x] Can generate 3+ design tensions
+- [x] Produces useful markdown report
+- [x] Test suite (100% reachable coverage)
+- [x] Documentation with examples
 
 ---
 
-*This document will evolve as we learn. Last updated: 2025-12-29*
+*This document will evolve as we learn. Last updated: 2026-01-15*

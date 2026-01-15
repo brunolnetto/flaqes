@@ -17,12 +17,12 @@ pytestmark = pytest.mark.skipif(
 
 
 if HAS_ASYNCPG:
-    from flakes.introspection.postgresql import (
+    from flaqes.introspection.postgresql import (
         PostgreSQLIntrospector,
         _categorize_type,
         _map_index_method,
     )
-    from flakes.core.types import DataTypeCategory, IndexMethod
+    from flaqes.core.types import DataTypeCategory, IndexMethod
 
 
 @pytest.mark.skipif(not HAS_ASYNCPG, reason="asyncpg not installed")

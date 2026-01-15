@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.analysis.tension_analyzer import (
+from flaqes.analysis.tension_analyzer import (
     Alternative,
     DesignTension,
     Effort,
@@ -17,8 +17,8 @@ from flakes.analysis.tension_analyzer import (
     _detect_text_without_constraint,
     _detect_denormalization,
 )
-from flakes.core.intent import Intent
-from flakes.core.schema_graph import (
+from flaqes.core.intent import Intent
+from flaqes.core.schema_graph import (
     Column,
     DataType,
     ForeignKey,
@@ -27,7 +27,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import DataTypeCategory, Severity, TensionCategory
+from flaqes.core.types import DataTypeCategory, Severity, TensionCategory
 
 
 # =============================================================================

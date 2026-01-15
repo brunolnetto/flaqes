@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
-from flakes.core.schema_graph import SchemaGraph, Table
+from flaqes.core.schema_graph import SchemaGraph, Table
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,7 +105,7 @@ class IntrospectorProtocol(Protocol):
         
         This should match the Engine literal type (e.g., 'postgresql').
         """
-        ...
+        ...  # pragma: no cover
 
     async def introspect(
         self,
@@ -125,7 +125,7 @@ class IntrospectorProtocol(Protocol):
             ConnectionError: If unable to connect to the database.
             IntrospectionError: If introspection fails.
         """
-        ...
+        ...  # pragma: no cover
 
     async def introspect_table(
         self,
@@ -142,7 +142,7 @@ class IntrospectorProtocol(Protocol):
         Returns:
             Table object if found, None otherwise.
         """
-        ...
+        ...  # pragma: no cover
 
     async def close(self) -> None:
         """
@@ -150,7 +150,7 @@ class IntrospectorProtocol(Protocol):
         
         Should be called when done with introspection.
         """
-        ...
+        ...  # pragma: no cover
 
 
 class Introspector(ABC):

@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     Constraint,
     DataType,
@@ -13,7 +13,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import (
+from flaqes.core.types import (
     Cardinality,
     ConstraintType,
     DataTypeCategory,

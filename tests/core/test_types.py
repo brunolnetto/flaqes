@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.core.types import (
+from flaqes.core.types import (
     Cardinality,
     ConstraintType,
     DataTypeCategory,

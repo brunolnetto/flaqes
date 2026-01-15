@@ -41,3 +41,47 @@ def pytest_collection_modifyitems(
     for item in items:
         if "integration" in item.keywords:
             item.add_marker(skip_integration)
+
+
+@pytest.fixture(scope="session")
+def shared_postgres_dsn():
+    """Start a shared PostgreSQL container for all integration tests.
+    
+    This fixture is session-scoped, meaning the container starts once
+    and is reused across all test files, significantly speeding up tests.
+    """
+    try:
+        from testcontainers.postgres import PostgresContainer
+        import subprocess
+    except ImportError:
+        pytest.skip("testcontainers[postgres] not installed")
+
+    # Start container
+    with PostgresContainer("postgres:16-alpine") as postgres:
+        host = postgres.get_container_host_ip()
+        port = postgres.get_exposed_port(5432)
+        user = postgres.username
+        password = postgres.password
+        database = postgres.dbname
+        
+        dsn = f"postgresql://{user}:{password}@{host}:{port}/{database}"
+        
+        # We'll return the container object and DSN so tests can run psql commands if needed
+        # But for simplicity, let's just return the DSN and helper to exec SQL
+        
+        class PostgresContext:
+            def __init__(self, dsn, container):
+                self.dsn = dsn
+                self.container = container
+            
+            def run_sql(self, sql: str):
+                container_id = self.container.get_wrapped_container().id
+                subprocess.run(
+                    ["docker", "exec", "-i", container_id, "psql", "-U", user, "-d", database],
+                    input=sql,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+        
+        yield PostgresContext(dsn, postgres)

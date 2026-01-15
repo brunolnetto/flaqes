@@ -12,7 +12,7 @@ Requirements:
 import asyncio
 import json
 
-from flakes import Intent, analyze_schema
+from flaqes import Intent, analyze_schema
 
 
 async def main():

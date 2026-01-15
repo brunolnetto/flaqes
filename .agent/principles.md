@@ -1,8 +1,8 @@
-# flakes Project Principles
+# flaqes Project Principles
 
 ## Core Philosophy
 
-**flakes is a schema critic, not a schema cop.**
+**flaqes is a schema critic, not a schema cop.**
 
 We explain trade-offs, not enforce rules. We surface tensions, not errors. We propose alternatives, not mandates.
 
@@ -94,12 +94,12 @@ Code comments explain rationale and trade-offs. The "what" should be obvious fro
 
 ## What Success Looks Like
 
-A senior database engineer uses flakes and:
+A senior database engineer uses flaqes and:
 1. **Learns something new** about their own schema
 2. **Disagrees with a finding** and articulates why — that's valuable friction
 3. **Uses the output** in a design review or documentation
 
-If flakes produces output that gets blindly followed by juniors without understanding, we've failed.
+If flaqes produces output that gets blindly followed by juniors without understanding, we've failed.
 
 ---
 

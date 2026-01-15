@@ -8,7 +8,7 @@ is just generic "best practice" noise.
 
 from dataclasses import dataclass, field
 
-from flakes.core.types import (
+from flaqes.core.types import (
     ConsistencyLevel,
     DataVolume,
     Engine,

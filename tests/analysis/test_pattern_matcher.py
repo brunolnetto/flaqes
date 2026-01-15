@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.analysis.pattern_matcher import (
+from flaqes.analysis.pattern_matcher import (
     DetectedPattern,
     PatternCategory,
     PatternDetector,
@@ -18,7 +18,7 @@ from flakes.analysis.pattern_matcher import (
     _detect_tree_structure,
     _detect_event_sourcing,
 )
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     DataType,
     ForeignKey,
@@ -26,7 +26,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import DataTypeCategory
+from flaqes.core.types import DataTypeCategory
 
 
 # =============================================================================

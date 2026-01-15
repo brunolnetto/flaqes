@@ -2,12 +2,12 @@
 
 import pytest
 
-from flakes.introspection.base import (
+from flaqes.introspection.base import (
     IntrospectionConfig,
     IntrospectionResult,
     IntrospectionError,
 )
-from flakes.core.schema_graph import SchemaGraph
+from flaqes.core.schema_graph import SchemaGraph
 
 
 class TestIntrospectionConfig:
@@ -130,9 +130,9 @@ class TestIntrospectionError:
 
 
 import pytest_asyncio
-from flakes.introspection.base import Introspector, IntrospectionConfig
-from flakes.core.schema_graph import Column, DataType, PrimaryKey, Table
-from flakes.core.types import DataTypeCategory
+from flaqes.introspection.base import Introspector, IntrospectionConfig
+from flaqes.core.schema_graph import Column, DataType, PrimaryKey, Table
+from flaqes.core.types import DataTypeCategory
 
 
 class MockIntrospector(Introspector):

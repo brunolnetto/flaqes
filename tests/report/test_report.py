@@ -4,10 +4,10 @@ import json
 
 import pytest
 
-from flakes.core.intent import Intent
-from flakes.core.schema_graph import Column, DataType, PrimaryKey, SchemaGraph, Table
-from flakes.core.types import DataTypeCategory
-from flakes.report import SchemaReport, generate_report
+from flaqes.core.intent import Intent
+from flaqes.core.schema_graph import Column, DataType, PrimaryKey, SchemaGraph, Table
+from flaqes.core.types import DataTypeCategory
+from flaqes.report import SchemaReport, generate_report
 
 
 def make_simple_graph() -> SchemaGraph:
@@ -160,8 +160,8 @@ class TestSchemaReport:
 
     def test_to_markdown_with_tensions(self) -> None:
         """to_markdown should include tension details."""
-        from flakes.analysis.tension_analyzer import DesignTension
-        from flakes.core.types import Severity, TensionCategory
+        from flaqes.analysis.tension_analyzer import DesignTension
+        from flaqes.core.types import Severity, TensionCategory
         
         tension = DesignTension(
             id="test",

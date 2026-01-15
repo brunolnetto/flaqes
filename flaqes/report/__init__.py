@@ -8,11 +8,11 @@ including markdown and JSON output formats.
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from flakes.analysis.pattern_matcher import DetectedPattern, PatternDetector
-from flakes.analysis.role_detector import RoleDetector, TableRoleResult
-from flakes.analysis.tension_analyzer import DesignTension, TensionAnalyzer
-from flakes.core.intent import Intent
-from flakes.core.schema_graph import SchemaGraph
+from flaqes.analysis.pattern_matcher import DetectedPattern, PatternDetector
+from flaqes.analysis.role_detector import RoleDetector, TableRoleResult
+from flaqes.analysis.tension_analyzer import DesignTension, TensionAnalyzer
+from flaqes.core.intent import Intent
+from flaqes.core.schema_graph import SchemaGraph
 
 
 @dataclass

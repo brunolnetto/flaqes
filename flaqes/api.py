@@ -8,14 +8,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from flakes.core.intent import Intent
-from flakes.core.schema_graph import SchemaGraph
-from flakes.introspection import get_introspector
-from flakes.introspection.base import IntrospectionConfig
-from flakes.report import SchemaReport, generate_report
+from flaqes.core.intent import Intent
+from flaqes.core.schema_graph import SchemaGraph
+from flaqes.introspection import get_introspector_from_dsn
+from flaqes.introspection.base import IntrospectionConfig
+from flaqes.report import SchemaReport, generate_report
 
 if TYPE_CHECKING:
-    from flakes.introspection.base import Introspector
+    from flaqes.introspection.base import Introspector
 
 
 async def analyze_schema(
@@ -58,7 +58,7 @@ async def analyze_schema(
     
     Example:
         >>> import asyncio
-        >>> from flakes import analyze_schema, Intent
+        >>> from flaqes import analyze_schema, Intent
         >>> 
         >>> async def main():
         ...     intent = Intent(
@@ -78,13 +78,13 @@ async def analyze_schema(
         ... asyncio.run(main())
     """
     # Get the appropriate introspector for the DSN
-    introspector: Introspector = get_introspector(dsn)
+    introspector: Introspector = get_introspector_from_dsn(dsn)
     
     # Configure introspection
     config = IntrospectionConfig(
-        tables=tables,
-        schemas=schemas,
-        exclude_patterns=exclude_patterns or [],
+        include_tables=tuple(tables) if tables else None,
+        schemas=tuple(schemas) if schemas else ("public",),
+        exclude_tables=tuple(exclude_patterns) if exclude_patterns else (),
     )
     
     # Connect and introspect
@@ -92,7 +92,7 @@ async def analyze_schema(
         result = await introspector.introspect(config)
     
     # Build schema graph from introspection result
-    graph = SchemaGraph.from_tables(result.tables)
+    graph = result.graph
     
     # Generate and return report
     return generate_report(graph, intent=intent)
@@ -127,15 +127,15 @@ async def introspect_schema(
         >>> for table in graph:
         ...     print(f"{table.name}: {len(table.columns)} columns")
     """
-    introspector: Introspector = get_introspector(dsn)
+    introspector: Introspector = get_introspector_from_dsn(dsn)
     
     config = IntrospectionConfig(
-        tables=tables,
-        schemas=schemas,
-        exclude_patterns=exclude_patterns or [],
+        include_tables=tuple(tables) if tables else None,
+        schemas=tuple(schemas) if schemas else ("public",),
+        exclude_tables=tuple(exclude_patterns) if exclude_patterns else (),
     )
     
     async with introspector:
         result = await introspector.introspect(config)
     
-    return SchemaGraph.from_tables(result.tables)
+    return result.graph

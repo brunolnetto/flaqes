@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.introspection.registry import (
+from flaqes.introspection.registry import (
     get_introspector,
     get_introspector_from_dsn,
     list_supported_engines,

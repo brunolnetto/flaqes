@@ -9,7 +9,7 @@ or interpretation happens at this layer.
 from dataclasses import dataclass, field
 from typing import Self
 
-from flakes.core.types import (
+from flaqes.core.types import (
     Cardinality,
     ConstraintType,
     DataTypeCategory,
@@ -458,3 +458,126 @@ class SchemaGraph:
     def __iter__(self):
         """Iterate over tables."""
         return iter(self.tables.values())
+
+    def to_mermaid_erd(
+        self,
+        include_columns: bool = True,
+        max_columns: int | None = None,
+        show_types: bool = True,
+    ) -> str:
+        """
+        Generate a Mermaid ERD diagram from the schema graph.
+        
+        Args:
+            include_columns: Whether to include column definitions.
+            max_columns: Maximum columns to show per table. None = show all columns.
+            show_types: Whether to show column types.
+        
+        Returns:
+            Mermaid ERD diagram as a string.
+        
+        Example output:
+            ```mermaid
+            erDiagram
+                users {
+                    int id PK
+                    varchar email UK
+                    text name
+                }
+                orders ||--o{ users : "user_id"
+            ```
+        """
+        lines = ["erDiagram"]
+        
+        # Generate table definitions
+        for table in self.tables.values():
+            if include_columns:
+                lines.append(f"    {table.name} {{")
+                
+                # Get PK and UK columns for marking
+                pk_cols = set(table.primary_key.columns) if table.primary_key else set()
+                uk_cols: set[str] = set()
+                fk_cols: set[str] = set()
+                
+                for constraint in table.constraints:
+                    if constraint.constraint_type == ConstraintType.UNIQUE:
+                        uk_cols.update(constraint.columns)
+                
+                for fk in table.foreign_keys:
+                    fk_cols.update(fk.columns)
+                
+                # Add columns (limit to max_columns if set)
+                columns_to_show = table.columns if max_columns is None else table.columns[:max_columns]
+                for col in columns_to_show:
+                    # Determine column type display
+                    if show_types:
+                        # Simplify type for Mermaid (remove size specs)
+                        type_str = self._simplify_type(col.data_type.raw)
+                    else:
+                        type_str = ""
+                    
+                    # Build markers
+                    markers = []
+                    if col.name in pk_cols:
+                        markers.append("PK")
+                    if col.name in fk_cols:
+                        markers.append("FK")
+                    if col.name in uk_cols and col.name not in pk_cols:
+                        markers.append("UK")
+                    
+                    marker_str = ",".join(markers)
+                    if marker_str:
+                        marker_str = f' "{marker_str}"'
+                    
+                    line = f"        {type_str} {col.name}{marker_str}"
+                    lines.append(line.strip())
+                
+                # Indicate if there are more columns
+                if max_columns is not None and len(table.columns) > max_columns:
+                    lines.append(f"        ... +{len(table.columns) - max_columns} more")
+                
+                lines.append("    }")
+            else:
+                # Just table names without columns
+                lines.append(f"    {table.name}")
+        
+        # Generate relationships
+        for rel in self.relationships:
+            source_name = rel.source_table.split(".")[-1]  # Get simple name
+            target_name = rel.target_table.split(".")[-1]
+            
+            # Determine relationship symbols
+            # Mermaid ERD uses: ||--o{ for one-to-many, ||--|| for one-to-one
+            if rel.cardinality == Cardinality.ONE_TO_ONE:
+                rel_symbol = "||--||"
+            elif rel.cardinality == Cardinality.MANY_TO_ONE:
+                rel_symbol = "}o--||"
+            else:  # MANY_TO_MANY  # pragma: no cover
+                rel_symbol = "}o--o{"
+            
+            # FK column(s) as label
+            fk_label = ", ".join(rel.foreign_key.columns)
+            
+            lines.append(f"    {source_name} {rel_symbol} {target_name} : \"{fk_label}\"")
+        
+        return "\n".join(lines)
+
+    def _simplify_type(self, raw_type: str) -> str:
+        """Simplify a raw SQL type for Mermaid display."""
+        # Remove size specifications
+        import re
+        simplified = re.sub(r"\([^)]*\)", "", raw_type)
+        # Map common types to shorter forms
+        type_map = {
+            "character varying": "varchar",
+            "timestamp without time zone": "timestamp",
+            "timestamp with time zone": "timestamptz",
+            "double precision": "double",
+            "boolean": "bool",
+            "integer": "int",
+            "smallint": "smallint",
+            "bigint": "bigint",
+        }
+        simplified_lower = simplified.lower().strip()
+        return type_map.get(simplified_lower, simplified.strip())
+

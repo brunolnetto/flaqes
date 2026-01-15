@@ -17,8 +17,8 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import NamedTuple
 
-from flakes.core.schema_graph import SchemaGraph, Table
-from flakes.core.types import DataTypeCategory
+from flaqes.core.schema_graph import SchemaGraph, Table
+from flaqes.core.types import DataTypeCategory
 
 
 # =============================================================================

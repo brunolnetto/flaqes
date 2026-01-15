@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.core.intent import (
+from flaqes.core.intent import (
     EVENT_SOURCING_INTENT,
     OLAP_INTENT,
     OLTP_INTENT,

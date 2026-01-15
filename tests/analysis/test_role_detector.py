@@ -2,7 +2,7 @@
 
 import pytest
 
-from flakes.analysis.role_detector import (
+from flaqes.analysis.role_detector import (
     RoleDetector,
     Signal,
     SignalType,
@@ -14,7 +14,7 @@ from flakes.analysis.role_detector import (
     _detect_scd_type2_signals,
     _detect_lookup_signals,
 )
-from flakes.core.schema_graph import (
+from flaqes.core.schema_graph import (
     Column,
     DataType,
     ForeignKey,
@@ -22,7 +22,7 @@ from flakes.core.schema_graph import (
     SchemaGraph,
     Table,
 )
-from flakes.core.types import DataTypeCategory, RoleType
+from flaqes.core.types import DataTypeCategory, RoleType
 
 
 # =============================================================================

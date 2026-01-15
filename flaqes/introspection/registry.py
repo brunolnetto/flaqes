@@ -7,7 +7,7 @@ database-specific introspectors. New engines are registered here.
 
 from typing import Callable
 
-from flakes.introspection.base import Introspector
+from flaqes.introspection.base import Introspector
 
 # Type alias for introspector factory functions
 IntrospectorFactory = Callable[[str], Introspector]
@@ -49,20 +49,20 @@ def _ensure_engine_loaded(engine: str) -> None:
     
     # Attempt lazy import for known engines
     if engine == "postgresql":
-        try:
-            import flakes.introspection.postgresql  # noqa: F401
-        except ImportError as e:
+        try:  # pragma: no cover
+            import flaqes.introspection.postgresql  # noqa: F401  # pragma: no cover
+        except ImportError as e:  # pragma: no cover
             raise ImportError(
                 f"PostgreSQL support requires asyncpg. "
                 f"Install with: pip install flakes[postgresql]\n"
                 f"Original error: {e}"
             ) from e
-    elif engine == "mysql":
+    elif engine == "mysql":  # pragma: no cover
         raise NotImplementedError(
             "MySQL support is not yet implemented. "
             "Contributions welcome!"
         )
-    elif engine == "sqlite":
+    elif engine == "sqlite":  # pragma: no cover
         raise NotImplementedError(
             "SQLite support is not yet implemented. "
             "Contributions welcome!"

@@ -18,19 +18,12 @@ pytestmark = pytest.mark.skipif(
 
 
 if HAS_ASYNCPG:
-<<<<<<< HEAD
-=======
-    from flaqes.core.types import DataTypeCategory, IndexMethod
->>>>>>> 3874906 (feat(): Mermaid diagram)
     from flaqes.introspection.postgresql import (
         PostgreSQLIntrospector,
         _categorize_type,
         _map_index_method,
     )
-<<<<<<< HEAD
     from flaqes.core.types import DataTypeCategory, IndexMethod
-=======
->>>>>>> 3874906 (feat(): Mermaid diagram)
 
 
 @pytest.mark.skipif(not HAS_ASYNCPG, reason="asyncpg not installed")

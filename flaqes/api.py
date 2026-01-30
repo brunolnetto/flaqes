@@ -10,21 +10,12 @@ from typing import TYPE_CHECKING
 
 from flaqes.core.intent import Intent
 from flaqes.core.schema_graph import SchemaGraph
-<<<<<<< HEAD
 from flaqes.introspection import get_introspector_from_dsn
 from flaqes.introspection.base import IntrospectionConfig
 from flaqes.report import SchemaReport, generate_report
 
 if TYPE_CHECKING:
     from flaqes.introspection.base import Introspector
-=======
-from flaqes.introspection.base import IntrospectionConfig
-from flaqes.introspection.registry import get_introspector_from_dsn
-from flaqes.report import SchemaReport, generate_report
-
-if TYPE_CHECKING:
-    pass
->>>>>>> 3874906 (feat(): Mermaid diagram)
 
 
 async def analyze_schema(
@@ -68,11 +59,7 @@ async def analyze_schema(
     Example:
         >>> import asyncio
         >>> from flaqes import analyze_schema, Intent
-<<<<<<< HEAD
         >>> 
-=======
-        >>>
->>>>>>> 3874906 (feat(): Mermaid diagram)
         >>> async def main():
         ...     intent = Intent(
         ...         workload="OLAP",
@@ -91,13 +78,8 @@ async def analyze_schema(
         ... asyncio.run(main())
     """
     # Get the appropriate introspector for the DSN
-<<<<<<< HEAD
     introspector: Introspector = get_introspector_from_dsn(dsn)
     
-=======
-    introspector = get_introspector_from_dsn(dsn)
-
->>>>>>> 3874906 (feat(): Mermaid diagram)
     # Configure introspection
     config = IntrospectionConfig(
         include_tables=tuple(tables) if tables else None,
@@ -108,18 +90,12 @@ async def analyze_schema(
     # Connect and introspect
     async with introspector:
         result = await introspector.introspect(config)
-<<<<<<< HEAD
     
     # Build schema graph from introspection result
     graph = result.graph
     
     # Generate and return report
     return generate_report(graph, intent=intent)
-=======
-
-    # Generate and return report using the introspected graph
-    return generate_report(result.graph, intent=intent)
->>>>>>> 3874906 (feat(): Mermaid diagram)
 
 
 async def introspect_schema(
@@ -151,13 +127,8 @@ async def introspect_schema(
         >>> for table in graph:
         ...     print(f"{table.name}: {len(table.columns)} columns")
     """
-<<<<<<< HEAD
     introspector: Introspector = get_introspector_from_dsn(dsn)
     
-=======
-    introspector = get_introspector_from_dsn(dsn)
-
->>>>>>> 3874906 (feat(): Mermaid diagram)
     config = IntrospectionConfig(
         include_tables=tuple(tables) if tables else None,
         schemas=tuple(schemas) if schemas else ("public",),

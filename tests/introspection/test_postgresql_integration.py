@@ -134,7 +134,6 @@ ANALYZE;
 
 
 @pytest.fixture(scope="module")
-<<<<<<< HEAD
 def postgres_dsn(shared_postgres_dsn):
     """Reuse shared PostgreSQL container and set up schema."""
     # Run the schema setup
@@ -147,44 +146,6 @@ if HAS_DEPS:
     from flaqes.introspection.postgresql import PostgreSQLIntrospector
     from flaqes.introspection.base import IntrospectionConfig
     from flaqes.core.types import DataTypeCategory
-=======
-def postgres_dsn():
-    """Start a PostgreSQL container and return connection URL.
-
-    Uses module scope to reuse the container across all tests in this file.
-    Uses psql via subprocess to set up schema (avoids event loop issues).
-    """
-    if not HAS_DEPS:
-        pytest.skip("testcontainers not available")
-
-    with PostgresContainer("postgres:16-alpine") as postgres:
-        # Get the connection URL
-        host = postgres.get_container_host_ip()
-        port = postgres.get_exposed_port(5432)
-        user = postgres.username
-        password = postgres.password
-        database = postgres.dbname
-
-        dsn = f"postgresql://{user}:{password}@{host}:{port}/{database}"
-
-        # Use docker exec to run psql for schema setup (synchronous, no event loop issues)
-        container_id = postgres.get_wrapped_container().id
-        subprocess.run(
-            ["docker", "exec", "-i", container_id, "psql", "-U", user, "-d", database],
-            input=TEST_SCHEMA_SQL,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-        yield dsn
-
-
-if HAS_DEPS:
-    from flaqes.core.types import DataTypeCategory
-    from flaqes.introspection.base import IntrospectionConfig
-    from flaqes.introspection.postgresql import PostgreSQLIntrospector
->>>>>>> 3874906 (feat(): Mermaid diagram)
 
 
 class TestPostgreSQLConnection:

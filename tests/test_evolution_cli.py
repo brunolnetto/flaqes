@@ -102,7 +102,7 @@ class TestSnapshotEngine:
     @patch("flaqes.evolution.snapshot.ALEMBIC_AVAILABLE", True)
     def test_init_missing_config(self):
         """Test init with missing config file."""
-        from flaqes.evolution.snapshot import SnapshotEngine
+        from flaqes.evolution.snapshot import SnapshotEngine, SnapshotError
         with pytest.raises(SnapshotError, match="Alembic config file not found"):
              # Use a definitely non-existent path
             SnapshotEngine("nonexistent_alembic.ini")

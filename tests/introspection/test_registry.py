@@ -3,6 +3,7 @@
 import pytest
 
 from flaqes.introspection.registry import (
+    _ensure_engine_loaded,
     get_introspector,
     get_introspector_from_dsn,
     is_engine_supported,

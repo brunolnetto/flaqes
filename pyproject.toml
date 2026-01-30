@@ -3,7 +3,7 @@ name = "flaqes"
 version = "0.2.0"
 description = "A schema critic for databases - analyze structure, surface trade-offs, propose alternatives"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 authors = [{ name = "Bruno Peixoto" }]
 keywords = ["database", "schema", "analysis", "design", "postgresql"]
@@ -40,11 +40,7 @@ all = [
 ]
 
 [project.scripts]
-<<<<<<< HEAD
 flaqes = "flaqes.cli:main"
-=======
-flakes = "flakes.cli:main"
->>>>>>> ce7ed15 (feat: Add comprehensive CLI interface)
 
 [build-system]
 requires = ["hatchling"]

@@ -8,11 +8,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+<<<<<<< HEAD:flaqes/api.py
 from flaqes.core.intent import Intent
 from flaqes.core.schema_graph import SchemaGraph
 from flaqes.introspection import get_introspector_from_dsn
 from flaqes.introspection.base import IntrospectionConfig
 from flaqes.report import SchemaReport, generate_report
+=======
+from flakes.core.intent import Intent
+from flakes.core.schema_graph import SchemaGraph
+from flakes.introspection.base import IntrospectionConfig
+from flakes.introspection.registry import get_introspector_from_dsn
+from flakes.report import SchemaReport, generate_report
+>>>>>>> 4854c48 (fix: Use get_introspector_from_dsn in API):flakes/api.py
 
 if TYPE_CHECKING:
     from flaqes.introspection.base import Introspector
@@ -78,7 +86,11 @@ async def analyze_schema(
         ... asyncio.run(main())
     """
     # Get the appropriate introspector for the DSN
+<<<<<<< HEAD:flaqes/api.py
     introspector: Introspector = get_introspector_from_dsn(dsn)
+=======
+    introspector = get_introspector_from_dsn(dsn)
+>>>>>>> 4854c48 (fix: Use get_introspector_from_dsn in API):flakes/api.py
     
     # Configure introspection
     config = IntrospectionConfig(
@@ -127,7 +139,11 @@ async def introspect_schema(
         >>> for table in graph:
         ...     print(f"{table.name}: {len(table.columns)} columns")
     """
+<<<<<<< HEAD:flaqes/api.py
     introspector: Introspector = get_introspector_from_dsn(dsn)
+=======
+    introspector = get_introspector_from_dsn(dsn)
+>>>>>>> 4854c48 (fix: Use get_introspector_from_dsn in API):flakes/api.py
     
     config = IntrospectionConfig(
         include_tables=tuple(tables) if tables else None,

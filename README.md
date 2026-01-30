@@ -1,4 +1,5 @@
 # flaqes 🔍
+<<<<<<< HEAD
 
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,6 +8,19 @@
 **A schema critic for PostgreSQL databases**
 
 flaqes analyzes database structures and surfaces design tensions, trade-offs, and alternative approaches based on your stated intent. Think of it as a thoughtful colleague who reviews your schema and explains *why* things are the way they are, not just *what* they are.
+=======
+
+**A schema critic for PostgreSQL databases**
+
+flaqes analyzes database structures and surfaces design tensions, trade-offs, and alternative approaches based on your stated intent.
+
+Think of it as a thoughtful colleague who reviews your schema and tells you:
+- **What** you have - tables, columns, relationships, patterns
+- **How** it's structured - roles, design patterns, architectural choices  
+- **Why** it matters - trade-offs, risks, breaking points, and alternatives
+
+Unlike tools that just catalog structure or enforce rigid rules, flaqes understands *context* and explains *implications*.
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 ## Features
 
@@ -16,45 +30,134 @@ flaqes analyzes database structures and surfaces design tensions, trade-offs, an
 - ⚖️ **Design Tensions** - Surfaces trade-offs in your current design with alternatives and effort estimates
 - ⏳ **Evolutionary Analysis** - Track structural changes and schema drift over time
 - 📊 **Comprehensive Reports** - Generates structured reports in Markdown or JSON format
+<<<<<<< HEAD
 - 📈 **Mermaid diagrams** - Generate beautiful ERDs for schema and flowcharts for migration history
 - 🖥️ **CLI Interface** - Analyze databases, DDL files, or migration history from the command line
 - 📄 **DDL Parsing** - Analyze schema from DDL files without database connection
+=======
+- 📐 **Mermaid ERD Diagrams** - Export visual Entity Relationship Diagrams for documentation
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 - 🔬 **No Mutations** - Analysis only, never modifies your database
 
 ## Installation
 
 ```bash
+<<<<<<< HEAD
 # Basic installation (includes PostgreSQL support)
 pip install flaqes
 
 # With development dependencies
+=======
+# Basic installation
+pip install flaqes
+
+# With PostgreSQL support (required for v0.1)
+pip install flaqes[postgresql]
+
+# Development installation
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 pip install flaqes[dev]
 ```
 
 Or using `uv`:
 
 ```bash
+<<<<<<< HEAD
 uv pip install flaqes
+=======
+uv pip install flaqes[postgresql]
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 ```
 
 ## Quick Start
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ### Command-Line Interface
+=======
+flaqes supports **three levels of analysis** - use what you need:
+
+### Level 1: WHAT - Just Structure (No Analysis)
+
+Get raw schema facts without any interpretation:
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 ```bash
-# Analyze entire database
-flakes analyze postgresql://user:pass@localhost/mydb
+# CLI: Introspect only (coming soon)
+flaqes introspect postgresql://localhost/mydb --format json > schema.json
+```
 
-# Use OLAP intent preset
-flakes analyze --intent olap postgresql://localhost/mydb
+```python
+# Python API: Schema structure only
+from flaqes import introspect_schema
 
-# Analyze specific tables and save to file
-flakes analyze --tables users,orders --output report.md postgresql://localhost/mydb
+graph = await introspect_schema("postgresql://localhost/mydb")
+
+# Access raw structure
+for table in graph:
+    print(f"Table: {table.name}")
+    print(f"Columns: {[c.name for c in table.columns]}")
+    print(f"Foreign Keys: {[fk.name for fk in table.foreign_keys]}")
+```
+
+### Level 2: HOW - Structure + Patterns
+
+Get structure detection without recommendations:
+
+```python
+from flaqes import introspect_schema
+from flaqes.analysis import RoleDetector, PatternDetector
+
+graph = await introspect_schema("postgresql://localhost/mydb")
+
+# Detect what tables ARE (roles)
+role_detector = RoleDetector()
+for table in graph:
+    role = role_detector.detect(table, graph)
+    print(f"{table.name}: {role.primary_role.name} ({role.confidence:.0%})")
+
+# Detect HOW they're designed (patterns)
+pattern_detector = PatternDetector()
+patterns = pattern_detector.detect_schema_patterns(graph)
+for table_name, table_patterns in patterns.items():
+    for pattern in table_patterns:
+        print(f"{table_name}: {pattern.pattern_type.name}")
+```
+
+### Level 3: WHY - Full Analysis with Recommendations
+
+Complete analysis with context-aware advice:
+
+#### Command-Line Interface
+
+```bash
+# Full analysis with default intent
+flaqes analyze postgresql://user:pass@localhost/mydb
+
+# With specific workload intent
+flaqes analyze --intent olap postgresql://localhost/mydb
+
+# Analyze specific tables
+flaqes analyze --tables users,orders --output report.md postgresql://localhost/mydb
 
 # JSON output for automation
-flakes analyze --format json --output report.json postgresql://localhost/mydb
+flaqes analyze --format json --output report.json postgresql://localhost/mydb
+```
+
+### Bonus: Visualize with Mermaid ERD
+
+Generate Entity Relationship Diagrams for documentation:
+
+```bash
+# Generate Mermaid ERD diagram
+flaqes diagram postgresql://localhost/mydb --output schema.mmd
+
+# Include specific tables only
+flaqes diagram --tables users,orders,products postgresql://localhost/mydb
+
+# Copy output and paste at https://mermaid.live/ to view
+flaqes diagram postgresql://localhost/mydb | pbcopy
 ```
 
 See the [CLI Guide](docs/CLI_GUIDE.md) for comprehensive usage examples.
@@ -92,6 +195,7 @@ async def main():
 asyncio.run(main())
 ```
 
+<<<<<<< HEAD
 ### Command Line Interface
 
 ```bash
@@ -129,6 +233,23 @@ flaqes history --output migrations.mmd
 ## What Makes flaqes Different?
 
 Unlike traditional schema validators or linters, flaqes:
+=======
+## What Makes flaqes Different?
+
+Most schema tools tell you **what** you have. Some help with **how** to query it. flaqes focuses on **why** it matters.
+
+### Traditional Tools vs flaqes
+
+| Traditional Schema Tools | flaqes |
+|-------------------------|---------|
+| Lists tables and columns | ✅ Plus semantic meaning (FACT, DIMENSION, etc.) |
+| Shows foreign keys | ✅ Plus relationship patterns (polymorphic, SCD, etc.) |
+| Validates constraints | ✅ Plus trade-off analysis (what you gain, what you risk) |
+| Enforces "best practices" | ✅ Provides context-aware recommendations |
+| Binary pass/fail | ✅ Confidence scores with supporting evidence |
+
+### Key Principles
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 1. **Understands Intent** - Recommendations depend on your workload. A denormalized table might be problematic for OLTP but perfect for OLAP.
 
@@ -304,32 +425,39 @@ intent = Intent(
 
 ```python
 from flaqes.core.intent import (
+<<<<<<< HEAD
     OLTP_INTENT,           # High-frequency transactional workload
     OLAP_INTENT,           # Analytics/reporting workload
     EVENT_SOURCING_INTENT, # Append-only event streams
     STARTUP_MVP_INTENT,    # Rapid iteration, schema flexibility
+=======
+    OLTP_INTENT,
+    OLAP_INTENT,
+    EVENT_SOURCING_INTENT,
+    STARTUP_MVP_INTENT,
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 )
 ```
 
-### Lower-Level API
+### Modular API - Mix and Match
 
-For custom analysis workflows:
+For custom analysis workflows, use individual analyzers:
 
 ```python
 from flaqes import introspect_schema
 from flaqes.analysis import RoleDetector, PatternDetector, TensionAnalyzer
 
-# Just introspect the schema
+# WHAT: Just introspect the schema
 graph = await introspect_schema("postgresql://localhost/mydb")
 
-# Run individual analyzers
+# HOW: Run individual pattern/role detectors
 role_detector = RoleDetector()
 pattern_detector = PatternDetector()
-tension_analyzer = TensionAnalyzer(intent=intent)
 
 for table in graph:
     # Detect table role
     role_result = role_detector.detect(table, graph)
+<<<<<<< HEAD
     print(f"{table.name}: {role_result.primary_role.name} ({role_result.confidence:.0%})")
     
     # Detect patterns
@@ -358,11 +486,20 @@ report.intent                # The intent used for analysis
 # Export methods
 report.to_markdown()         # Formatted markdown string
 report.to_dict()             # JSON-serializable dictionary
+=======
+    print(f"{table.name}: {role_result.primary_role.name}")
+
+# WHY: Add tension analysis only when needed
+from flaqes.core.intent import OLAP_INTENT
+tension_analyzer = TensionAnalyzer(intent=OLAP_INTENT)
+tensions = tension_analyzer.analyze(graph)
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 ```
 
 ## Architecture
 
 flaqes operates in three layers:
+<<<<<<< HEAD
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -387,6 +524,8 @@ flaqes operates in three layers:
 │         PostgreSQL Catalog / DDL Parser                      │
 └─────────────────────────────────────────────────────────────┘
 ```
+=======
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 1. **Structural Facts Layer** (Objective)
    - Introspects database catalogs or parses DDL
@@ -434,10 +573,14 @@ flaqes operates in three layers:
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.10+
 - PostgreSQL 12+ (for database introspection)
+<<<<<<< HEAD
 - asyncpg (included by default)
 - Docker (for running integration tests)
+=======
+- asyncpg (installed with `flaqes[postgresql]`)
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 ## Contributing
 
@@ -471,4 +614,8 @@ Inspired by the need for thoughtful schema review tools that understand context 
 
 ---
 
+<<<<<<< HEAD
 **flaqes** - *Because your schema deserves a thoughtful review, not just a lint check.*
+=======
+**Note:** flaqes is alpha software. The API may change in future versions. Use in production with caution.
+>>>>>>> 3874906 (feat(): Mermaid diagram)

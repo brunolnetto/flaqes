@@ -8,11 +8,11 @@
 
 ## What Was Built
 
-A comprehensive command-line interface for flakes that provides full access to schema analysis functionality from the terminal.
+A comprehensive command-line interface for flaqes that provides full access to schema analysis functionality from the terminal.
 
 ### Core Features
 
-1. **`flakes analyze` Command**
+1. **`flaqes analyze` Command**
    - Full schema analysis from command line
    - Intent selection (presets or custom)
    - Table/schema filtering
@@ -20,7 +20,7 @@ A comprehensive command-line interface for flakes that provides full access to s
    - File output or stdout
    - Verbose and quiet modes
 
-2. **`flakes version` Command**
+2. **`flaqes version` Command**
    - Display version information
 
 3. **Intent Options**
@@ -45,7 +45,7 @@ A comprehensive command-line interface for flakes that provides full access to s
 ### File Structure
 
 ```
-flakes/
+flaqes/
 ├── cli.py (NEW)              - 311 lines, CLI implementation
 └── ...
 
@@ -80,27 +80,27 @@ docs/
 
 ```bash
 # Analyze database
-flakes analyze postgresql://localhost/mydb
+flaqes analyze postgresql://localhost/mydb
 
 # With intent preset
-flakes analyze --intent olap postgresql://localhost/mydb
+flaqes analyze --intent olap postgresql://localhost/mydb
 
 # Save to file
-flakes analyze --output report.md postgresql://localhost/mydb
+flaqes analyze --output report.md postgresql://localhost/mydb
 ```
 
 ### Advanced Usage
 
 ```bash
 # Specific tables with JSON output
-flakes analyze \
+flaqes analyze \
   --tables users,orders,products \
   --format json \
   --output report.json \
   postgresql://localhost/mydb
 
 # Custom intent
-flakes analyze \
+flaqes analyze \
   --workload OLTP \
   --write-frequency high \
   --read-patterns point_lookup,join_heavy \
@@ -108,7 +108,7 @@ flakes analyze \
   postgresql://localhost/mydb
 
 # With filtering
-flakes analyze \
+flaqes analyze \
   --schemas public,analytics \
   --exclude "tmp_*,test_*" \
   --quiet \
@@ -199,10 +199,10 @@ Added to `pyproject.toml`:
 
 ```toml
 [project.scripts]
-flakes = "flakes.cli:main"
+flaqes = "flaqes.cli:main"
 ```
 
-This makes `flakes` available as a command after installation.
+This makes `flaqes` available as a command after installation.
 
 ### Consistency with API
 
@@ -271,7 +271,7 @@ With CLI complete, remaining Phase 6 tasks:
 1. **PyPI Publishing** (Priority: High)
    - Package for distribution
    - Upload to PyPI
-   - Make installable via `pip install flakes`
+   - Make installable via `pip install flaqes`
 
 2. **CI/CD Setup** (Priority: Medium)
    - GitHub Actions for tests

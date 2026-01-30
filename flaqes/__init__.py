@@ -127,5 +127,3 @@ __all__ = [
     "SchemaReport",
     "generate_report",
 ]
-
-

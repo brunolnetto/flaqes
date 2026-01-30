@@ -1,5 +1,5 @@
 """
-Core type definitions for flakes.
+Core type definitions for flaqes.
 
 This module contains all enums, literals, and type aliases used throughout
 the library. Centralizing types here ensures consistency and makes it easy
@@ -43,7 +43,7 @@ Supported database engines.
 
 To add a new engine:
 1. Add the engine name to this Literal type
-2. Create flakes/introspection/<engine>.py implementing Introspector
+2. Create flaqes/introspection/<engine>.py implementing Introspector
 3. Use @register_introspector("<engine>") decorator on the class
 
 PostgreSQL is the primary supported engine for v1.
@@ -90,7 +90,7 @@ class IndexMethod(Enum):
 class DataTypeCategory(Enum):
     """
     High-level categorization of column data types.
-    
+
     This abstraction allows pattern matching without caring about
     the exact type (e.g., INT2 vs INT4 vs INT8 all map to INTEGER).
     """
@@ -124,7 +124,7 @@ class DataTypeCategory(Enum):
 class RoleType(Enum):
     """
     Semantic role hypothesis for a table.
-    
+
     These are not mutually exclusive in reality, but we pick the
     most likely primary role and track alternatives with confidence.
     """

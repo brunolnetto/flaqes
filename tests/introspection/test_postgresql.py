@@ -5,6 +5,7 @@ import pytest
 # Check if asyncpg is available
 try:
     import asyncpg
+
     HAS_ASYNCPG = True
 except ImportError:
     HAS_ASYNCPG = False
@@ -12,17 +13,24 @@ except ImportError:
 # Skip all tests in this module if asyncpg is not installed
 pytestmark = pytest.mark.skipif(
     not HAS_ASYNCPG,
-    reason="asyncpg not installed - install with: pip install flakes[postgresql]"
+    reason="asyncpg not installed - install with: pip install flaqes[postgresql]",
 )
 
 
 if HAS_ASYNCPG:
+<<<<<<< HEAD
+=======
+    from flaqes.core.types import DataTypeCategory, IndexMethod
+>>>>>>> 3874906 (feat(): Mermaid diagram)
     from flaqes.introspection.postgresql import (
         PostgreSQLIntrospector,
         _categorize_type,
         _map_index_method,
     )
+<<<<<<< HEAD
     from flaqes.core.types import DataTypeCategory, IndexMethod
+=======
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 
 @pytest.mark.skipif(not HAS_ASYNCPG, reason="asyncpg not installed")

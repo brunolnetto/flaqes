@@ -1,6 +1,10 @@
 [project]
 name = "flaqes"
+<<<<<<< HEAD
 version = "0.2.0"
+=======
+version = "0.1.0"
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 description = "A schema critic for databases - analyze structure, surface trade-offs, propose alternatives"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -82,7 +86,7 @@ target-version = "py313"
 select = [
     "E",    # pycodestyle errors
     "W",    # pycodestyle warnings
-    "F",    # Pyflakes
+    "F",    # Pyflaqes
     "I",    # isort
     "B",    # flake8-bugbear
     "C4",   # flake8-comprehensions

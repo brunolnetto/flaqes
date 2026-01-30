@@ -18,12 +18,21 @@ The key differentiator: **understanding intent before giving advice**.
 
 ## 2. Non-Goals (Explicit Constraints)
 
+<<<<<<< HEAD
 | ❌ What flaqes is NOT  | Why                                                       |
 | --------------------- | --------------------------------------------------------- |
 | Migration tool        | Combinatorially complex, already solved by Alembic/Flyway |
 | Schema formatter      | Cosmetic, low value                                       |
 | SQL linter            | Syntax-level, not design-level                            |
 | Automatic refactoring | Too opinionated, dangerous without human review           |
+=======
+| ❌ What flaqes is NOT | Why |
+|------------------------|-----|
+| Migration tool | Combinatorially complex, already solved by Alembic/Flyway |
+| Schema formatter | Cosmetic, low value |
+| SQL linter | Syntax-level, not design-level |
+| Automatic refactoring | Too opinionated, dangerous without human review |
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 
 flaqes **analyzes and reasons**. It never mutates.
 
@@ -321,7 +330,11 @@ asyncio.run(main())
 
 1. **Scope of "table neighbors"**: Should analysis include FK depth 1, depth 2, or configurable?
 2. **Data sampling**: Should flaqes optionally sample data to validate hypotheses (e.g., cardinality estimates)?
+<<<<<<< HEAD
 3. **Historical analysis**: DONE (Phase 7).
+=======
+3. **Historical analysis**: Should flaqes track schema changes over time?
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 4. **Multi-database support**: Priority of MySQL, SQLite after PostgreSQL?
 5. **LLM integration**: Built-in optional module, or separate package (`flaqes-llm`)?
 
@@ -369,7 +382,7 @@ asyncio.run(main())
 ### Project Structure (Actual)
 
 ```
-flakes/
+flaqes/
 ├── __init__.py              # Public API exports
 ├── api.py                   # Main entry points
 ├── cli.py                   # Command-line interface (NEW)
@@ -397,7 +410,7 @@ examples/                    # Usage examples
 ### Next Development Priorities
 
 **Phase 6 Completion:**
-1. CLI interface (2-3 hours) - `flakes analyze postgresql://...`
+1. CLI interface (2-3 hours) - `flaqes analyze postgresql://...`
 2. PyPI publishing (1 hour) - Make installable
 3. CI/CD setup (1-2 hours) - GitHub Actions for tests
 

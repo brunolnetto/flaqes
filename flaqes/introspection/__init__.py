@@ -1,6 +1,7 @@
 """Introspection module for extracting schema information from databases."""
 
 from flaqes.introspection.base import Introspector, IntrospectorProtocol
+<<<<<<< HEAD
 from flaqes.introspection.ddl_parser import (
     DDLParser,
     ParseError,
@@ -11,6 +12,10 @@ from flaqes.introspection.ddl_parser import (
 from flaqes.introspection.registry import (
     get_introspector,
     get_introspector_from_dsn,
+=======
+from flaqes.introspection.registry import (
+    get_introspector,
+>>>>>>> 3874906 (feat(): Mermaid diagram)
     register_introspector,
 )
 
@@ -18,6 +23,7 @@ __all__ = [
     "Introspector",
     "IntrospectorProtocol",
     "get_introspector",
+<<<<<<< HEAD
     "get_introspector_from_dsn",
     "register_introspector",
     # DDL Parser
@@ -26,4 +32,7 @@ __all__ = [
     "ParseResult",
     "parse_ddl",
     "parse_ddl_file",
+=======
+    "register_introspector",
+>>>>>>> 3874906 (feat(): Mermaid diagram)
 ]

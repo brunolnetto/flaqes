@@ -1,7 +1,7 @@
 """
 Intent specification for schema analysis.
 
-Intent is the crucial input that makes flakes' advice meaningful.
+Intent is the crucial input that makes flaqes' advice meaningful.
 Without knowing what the schema is optimized for, any recommendation
 is just generic "best practice" noise.
 """
@@ -23,13 +23,13 @@ from flaqes.core.types import (
 class Intent:
     """
     User-declared intent for database schema analysis.
-    
-    This captures what the schema is optimized for, enabling flakes
+
+    This captures what the schema is optimized for, enabling flaqes
     to provide contextual advice rather than generic recommendations.
-    
+
     All fields have sensible defaults, but more specific intent leads
     to more relevant analysis.
-    
+
     Example:
         >>> intent = Intent(
         ...     workload="OLAP",

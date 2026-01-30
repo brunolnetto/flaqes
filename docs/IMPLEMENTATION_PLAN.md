@@ -18,12 +18,12 @@ The key differentiator: **understanding intent before giving advice**.
 
 ## 2. Non-Goals (Explicit Constraints)
 
-| ❌ What flaqes is NOT | Why |
-|------------------------|-----|
-| Migration tool | Combinatorially complex, already solved by Alembic/Flyway |
-| Schema formatter | Cosmetic, low value |
-| SQL linter | Syntax-level, not design-level |
-| Automatic refactoring | Too opinionated, dangerous without human review |
+| ❌ What flaqes is NOT  | Why                                                       |
+| --------------------- | --------------------------------------------------------- |
+| Migration tool        | Combinatorially complex, already solved by Alembic/Flyway |
+| Schema formatter      | Cosmetic, low value                                       |
+| SQL linter            | Syntax-level, not design-level                            |
+| Automatic refactoring | Too opinionated, dangerous without human review           |
 
 flaqes **analyzes and reasons**. It never mutates.
 
@@ -46,15 +46,15 @@ Things derived with 100% confidence from schema introspection:
 
 Inferred patterns based on naming conventions and structural signals:
 
-| Pattern | Signals |
-|---------|---------|
-| **Fact table** | High column count, FK-heavy, timestamps, numeric measures |
-| **Dimension table** | Few FKs pointing to it, descriptive columns, low cardinality hints |
-| **Event log** | Append-only signals, `created_at` without `updated_at`, no updates expected |
-| **SCD Type 2** | `valid_from`, `valid_to`, `is_current` columns |
-| **Soft delete** | `deleted_at` or `is_deleted` columns |
-| **Polymorphic bucket** | `type` discriminator column, sparse nullable columns |
-| **Junction table** | Composite PK of two FKs, minimal additional columns |
+| Pattern                | Signals                                                                     |
+| ---------------------- | --------------------------------------------------------------------------- |
+| **Fact table**         | High column count, FK-heavy, timestamps, numeric measures                   |
+| **Dimension table**    | Few FKs pointing to it, descriptive columns, low cardinality hints          |
+| **Event log**          | Append-only signals, `created_at` without `updated_at`, no updates expected |
+| **SCD Type 2**         | `valid_from`, `valid_to`, `is_current` columns                              |
+| **Soft delete**        | `deleted_at` or `is_deleted` columns                                        |
+| **Polymorphic bucket** | `type` discriminator column, sparse nullable columns                        |
+| **Junction table**     | Composite PK of two FKs, minimal additional columns                         |
 
 ### Layer 3: Intent Axes (User-Provided)
 
@@ -169,13 +169,18 @@ flaqes/
 ├── patterns/
 │   ├── base.py           # Abstract pattern interface
 │   ├── temporal.py       # SCD, event sourcing, audit patterns
-│   ├── normalization.py  # 1NF/2NF/3NF violations, denormalization
-│   └── relational.py     # Junction tables, polymorphic associations
+│   └── ...
+├── evolution/            # NEW: Historical analysis
+│   ├── snapshot.py       # Reconstruct past schema states
+│   ├── diff.py           # Compare schema versions
+│   └── report.py         # Trend analysis
+├── visualization/        # NEW: CLI visualizations
+│   └── text.py           # Sparklines and charts
 ├── report/
 │   ├── models.py         # Report data structures
 │   ├── text.py           # Plain text/markdown output
 │   └── json.py           # Structured JSON output
-└── cli.py                # Command-line interface (future)
+└── cli.py                # Command-line interface
 ```
 
 ---
@@ -228,6 +233,12 @@ flaqes/
 - [x] Integration tests with testcontainers
 - [x] Documentation enhancements (README, API docs)
 - [ ] PyPI release
+
+### Phase 7: Evolutionary Analysis (Complete ✅)
+- [x] SnapshotEngine (Time-travel introspection)
+- [x] DiffEngine (Structural & Semantic diffs)
+- [x] EvolutionReportEngine (Trend analysis)
+- [x] CLI commands (`analyze-rev`, `diff`, `evolution`)
 
 ---
 
@@ -301,7 +312,7 @@ asyncio.run(main())
 
 1. **Scope of "table neighbors"**: Should analysis include FK depth 1, depth 2, or configurable?
 2. **Data sampling**: Should flaqes optionally sample data to validate hypotheses (e.g., cardinality estimates)?
-3. **Historical analysis**: Should flaqes track schema changes over time?
+3. **Historical analysis**: DONE (Phase 7).
 4. **Multi-database support**: Priority of MySQL, SQLite after PostgreSQL?
 5. **LLM integration**: Built-in optional module, or separate package (`flaqes-llm`)?
 

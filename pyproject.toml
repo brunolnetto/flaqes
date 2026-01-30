@@ -1,6 +1,6 @@
 [project]
 name = "flaqes"
-version = "0.1.0"
+version = "0.2.0"
 description = "A schema critic for databases - analyze structure, surface trade-offs, propose alternatives"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -19,6 +19,7 @@ classifiers = [
 
 dependencies = [
     "asyncpg>=0.31.0",
+    "barmaid>=0.0.1",
 ]
 
 [project.optional-dependencies]

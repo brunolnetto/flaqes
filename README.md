@@ -14,9 +14,10 @@ flaqes analyzes database structures and surfaces design tensions, trade-offs, an
 - 🔍 **Role Detection** - Identifies semantic roles (fact tables, dimensions, events, junctions, etc.) with confidence scores
 - 🎨 **Pattern Recognition** - Detects design patterns like SCD Type 2, soft deletes, polymorphic associations, and more
 - ⚖️ **Design Tensions** - Surfaces trade-offs in your current design with alternatives and effort estimates
+- ⏳ **Evolutionary Analysis** - Track structural changes and schema drift over time
 - 📊 **Comprehensive Reports** - Generates structured reports in Markdown or JSON format
-- 📈 **Mermaid ERD Diagrams** - Generate beautiful entity-relationship diagrams for documentation
-- 🖥️ **CLI Interface** - Analyze databases or DDL files from the command line
+- 📈 **Mermaid diagrams** - Generate beautiful ERDs for schema and flowcharts for migration history
+- 🖥️ **CLI Interface** - Analyze databases, DDL files, or migration history from the command line
 - 📄 **DDL Parsing** - Analyze schema from DDL files without database connection
 - 🔬 **No Mutations** - Analysis only, never modifies your database
 
@@ -97,6 +98,11 @@ flaqes diagram --ddl schema.sql
 flaqes diagram --ddl schema.sql --wrap  # Wrap in markdown code block
 flaqes diagram --ddl schema.sql --no-columns  # Tables only, no column details
 flaqes diagram --dsn postgresql://localhost/mydb  # From live database
+
+# Visualize migration history (via integrated barmaid)
+flaqes history  # Auto-detects alembic/versions
+flaqes history ./custom/versions --direction LR
+flaqes history --output migrations.mmd
 ```
 
 ## What Makes flaqes Different?
@@ -191,6 +197,33 @@ async def introspect_schema(
     exclude_patterns: list[str] | None = None,
 ) -> SchemaGraph:
 ```
+
+#### 🕰️ Evolution & History
+
+Analyze how your schema has evolved over time.
+
+```bash
+# Visualize migration history (DAG)
+$ flaqes history
+
+# Analyze the schema as it existed in a past revision
+$ flaqes analyze-rev 1a2b3c
+
+# See the architectural difference between two versions used
+$ flaqes diff base head
+# Output:
+# + Added Table: public.audit_logs
+# ~ Modified: public.users (Role Drift: DIMENSION -> FACT)
+
+# Analyze trends over time
+$ flaqes evolution
+# Output:
+# Table Count Trend:  ▃▄▅ (12 -> 24)
+```
+
+### 📊 Visualization
+
+Generate diagrams for your documentation.
 
 #### `generate_report`
 
@@ -366,7 +399,7 @@ flaqes operates in three layers:
 ### Roadmap 🚧
 - [ ] MySQL support
 - [ ] SQLite support
-- [ ] Historical schema tracking
+- [x] Historical schema tracking
 - [ ] LLM integration for natural language explanations
 - [ ] VS Code extension
 

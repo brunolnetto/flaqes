@@ -35,6 +35,15 @@ wheels = [
 ]
 
 [[package]]
+name = "barmaid"
+version = "0.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/37/0a/924a1a159540b01ea14be672ec14421a13306cce5e5ce63faaab4aeca043/barmaid-0.0.2.tar.gz", hash = "sha256:61e45b40b2c6657b5e3558a7284d92759899f059521f810bc2fadc85bcbf7e3d", size = 5922, upload-time = "2026-01-28T20:52:37.762Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/05/19/e373fb87f12a29072a795c11147910850a1a7ffa3b3574d2c4aff067faab/barmaid-0.0.2-py3-none-any.whl", hash = "sha256:04e8090a9a7d287d3f46da36c22f821f044ac6fbb84ad3b2b9db3a2b64b994b7", size = 6193, upload-time = "2026-01-28T20:52:36.332Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2026.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -179,10 +188,11 @@ wheels = [
 
 [[package]]
 name = "flaqes"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "asyncpg" },
+    { name = "barmaid" },
 ]
 
 [package.optional-dependencies]
@@ -212,6 +222,7 @@ dev = [
 requires-dist = [
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "asyncpg", marker = "extra == 'postgresql'", specifier = ">=0.31.0" },
+    { name = "barmaid", specifier = ">=0.0.1" },
     { name = "flaqes", extras = ["postgresql"], marker = "extra == 'all'" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },

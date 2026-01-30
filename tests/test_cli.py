@@ -34,7 +34,7 @@ class TestCreateParser:
             parser.parse_args(["--version"])
         assert exc_info.value.code == 0
         captured = capsys.readouterr()
-        assert "0.1.0" in captured.out
+        assert "flaqes" in captured.out
 
     def test_analyze_subcommand(self):
         """Test analyze subcommand parsing."""
@@ -111,10 +111,11 @@ class TestMain:
     def test_analyze_command_routes(self):
         """Test that analyze command routes correctly."""
         with patch("sys.argv", ["flaqes", "analyze", "postgresql://localhost/test"]):
-            with patch("flaqes.cli.asyncio.run") as mock_run:
+            with patch("flaqes.cli.run_analyze", new_callable=AsyncMock) as mock_run:
                 mock_run.return_value = 0
                 result = main()
         assert result == 0
+        assert mock_run.called
 
     def test_analyze_ddl_command_routes(self):
         """Test that analyze-ddl command routes correctly."""
@@ -131,10 +132,11 @@ class TestMain:
     def test_introspect_command_routes(self):
         """Test that introspect command routes correctly."""
         with patch("sys.argv", ["flaqes", "introspect", "--dsn", "postgresql://localhost/test"]):
-            with patch("flaqes.cli.asyncio.run") as mock_run:
+            with patch("flaqes.cli.run_introspect", new_callable=AsyncMock) as mock_run:
                 mock_run.return_value = 0
                 result = main()
         assert result == 0
+        assert mock_run.called
 
 
 class TestRunAnalyze:

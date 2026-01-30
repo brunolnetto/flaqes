@@ -9,20 +9,39 @@ This document provides detailed API documentation for the flaqes library.
 
 ## Table of Contents
 
-1. [Core API](#core-api)
-   - [analyze_schema](#analyze_schema)
-   - [introspect_schema](#introspect_schema)
-   - [generate_report](#generate_report)
-2. [Data Types](#data-types)
-   - [Intent](#intent)
-   - [SchemaGraph](#schemagraph)
-   - [SchemaReport](#schemareport)
-3. [Analysis Components](#analysis-components)
-   - [RoleDetector](#roledetector)
-   - [PatternDetector](#patterndetector)
-   - [TensionAnalyzer](#tensionanalyzer)
-4. [DDL Parsing](#ddl-parsing)
-5. [CLI Reference](#cli-reference)
+- [flaqes API Documentation](#flaqes-api-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [Core API](#core-api)
+    - [`analyze_schema`](#analyze_schema)
+    - [`introspect_schema`](#introspect_schema)
+    - [`generate_report`](#generate_report)
+  - [Data Types](#data-types)
+    - [`Intent`](#intent)
+    - [`SchemaGraph`](#schemagraph)
+    - [`SchemaReport`](#schemareport)
+  - [Analysis Components](#analysis-components)
+    - [`RoleDetector`](#roledetector)
+    - [`PatternDetector`](#patterndetector)
+    - [`TensionAnalyzer`](#tensionanalyzer)
+  - [Evolution API](#evolution-api)
+    - [`SnapshotEngine`](#snapshotengine)
+    - [`DiffEngine`](#diffengine)
+    - [`EvolutionReportEngine`](#evolutionreportengine)
+  - [DDL Parsing](#ddl-parsing)
+    - [`parse_ddl`](#parse_ddl)
+    - [`parse_ddl_file`](#parse_ddl_file)
+    - [`DDLParser` (Advanced)](#ddlparser-advanced)
+  - [CLI Reference](#cli-reference)
+    - [`flaqes analyze`](#flaqes-analyze)
+    - [`flaqes analyze-ddl`](#flaqes-analyze-ddl)
+    - [`flaqes introspect`](#flaqes-introspect)
+    - [`flaqes analyze-rev`](#flaqes-analyze-rev)
+    - [`flaqes diff`](#flaqes-diff)
+    - [`flaqes evolution`](#flaqes-evolution)
+  - [Error Handling](#error-handling)
+    - [`IntrospectionError`](#introspectionerror)
+    - [`ParseError`](#parseerror)
+  - [See Also](#see-also)
 
 ---
 
@@ -44,13 +63,13 @@ Analyze a database schema and generate a comprehensive report.
 
 **Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `dsn` | `str` | Database connection string (e.g., `"postgresql://user:pass@host/db"`) |
-| `intent` | `Intent \| None` | Optional workload intent for contextual analysis |
-| `tables` | `list[str] \| None` | Optional list of specific tables to analyze |
-| `schemas` | `list[str] \| None` | Optional list of schemas (default: `["public"]`) |
-| `exclude_patterns` | `list[str] \| None` | Optional glob patterns to exclude (e.g., `["tmp_*", "staging_*"]`) |
+| Parameter          | Type                | Description                                                           |
+| ------------------ | ------------------- | --------------------------------------------------------------------- |
+| `dsn`              | `str`               | Database connection string (e.g., `"postgresql://user:pass@host/db"`) |
+| `intent`           | `Intent \| None`    | Optional workload intent for contextual analysis                      |
+| `tables`           | `list[str] \| None` | Optional list of specific tables to analyze                           |
+| `schemas`          | `list[str] \| None` | Optional list of schemas (default: `["public"]`)                      |
+| `exclude_patterns` | `list[str] \| None` | Optional glob patterns to exclude (e.g., `["tmp_*", "staging_*"]`)    |
 
 **Returns:** `SchemaReport` containing all analysis results
 
@@ -94,12 +113,12 @@ This is a lower-level API for custom analysis workflows.
 
 **Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `dsn` | `str` | Database connection string |
-| `tables` | `list[str] \| None` | Optional list of specific tables |
-| `schemas` | `list[str] \| None` | Optional list of schemas |
-| `exclude_patterns` | `list[str] \| None` | Optional patterns to exclude |
+| Parameter          | Type                | Description                      |
+| ------------------ | ------------------- | -------------------------------- |
+| `dsn`              | `str`               | Database connection string       |
+| `tables`           | `list[str] \| None` | Optional list of specific tables |
+| `schemas`          | `list[str] \| None` | Optional list of schemas         |
+| `exclude_patterns` | `list[str] \| None` | Optional patterns to exclude     |
 
 **Returns:** `SchemaGraph` containing all structural information
 
@@ -134,10 +153,10 @@ Useful when you have a schema graph from DDL parsing or want to separate introsp
 
 **Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `graph` | `SchemaGraph` | The schema graph to analyze |
-| `intent` | `Intent \| None` | Optional workload intent |
+| Parameter | Type             | Description                 |
+| --------- | ---------------- | --------------------------- |
+| `graph`   | `SchemaGraph`    | The schema graph to analyze |
+| `intent`  | `Intent \| None` | Optional workload intent    |
 
 **Returns:** `SchemaReport` with complete analysis
 
@@ -178,14 +197,14 @@ Represents the intended workload characteristics for analysis.
 
 **Fields:**
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `workload` | `str` | `"mixed"` | Primary workload type: OLTP, OLAP, or mixed |
-| `write_frequency` | `str` | `"medium"` | How often data is written |
-| `read_patterns` | `list` | `[]` | Types of read operations: point_lookup, range_scan, aggregation, join_heavy |
-| `consistency` | `str` | `"strong"` | Consistency requirements |
-| `evolution_rate` | `str` | `"medium"` | How often schema changes |
-| `data_volume` | `str` | `"medium"` | Expected data size |
+| Field             | Type   | Default    | Description                                                                 |
+| ----------------- | ------ | ---------- | --------------------------------------------------------------------------- |
+| `workload`        | `str`  | `"mixed"`  | Primary workload type: OLTP, OLAP, or mixed                                 |
+| `write_frequency` | `str`  | `"medium"` | How often data is written                                                   |
+| `read_patterns`   | `list` | `[]`       | Types of read operations: point_lookup, range_scan, aggregation, join_heavy |
+| `consistency`     | `str`  | `"strong"` | Consistency requirements                                                    |
+| `evolution_rate`  | `str`  | `"medium"` | How often schema changes                                                    |
+| `data_volume`     | `str`  | `"medium"` | Expected data size                                                          |
 
 **Presets:**
 
@@ -212,11 +231,11 @@ Represents a database schema as a graph of tables and relationships.
 
 **Key Methods:**
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `__iter__()` | `Iterator[Table]` | Iterate over all tables |
-| `get_table(fqn: str)` | `Table \| None` | Get table by fully-qualified name |
-| `get_table_by_name(name: str)` | `Table \| None` | Get table by simple name |
+| Method                                  | Returns              | Description                         |
+| --------------------------------------- | -------------------- | ----------------------------------- |
+| `__iter__()`                            | `Iterator[Table]`    | Iterate over all tables             |
+| `get_table(fqn: str)`                   | `Table \| None`      | Get table by fully-qualified name   |
+| `get_table_by_name(name: str)`          | `Table \| None`      | Get table by simple name            |
 | `get_relationships_for(table_fqn: str)` | `list[Relationship]` | Get relationships involving a table |
 
 **Example:**
@@ -249,20 +268,20 @@ The complete analysis result.
 
 **Properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `table_count` | `int` | Number of tables analyzed |
-| `relationship_count` | `int` | Number of relationships found |
-| `table_roles` | `dict` | Role detection results by table FQN |
-| `patterns` | `list` | All detected design patterns |
-| `tensions` | `list` | All detected design tensions |
+| Property             | Type   | Description                         |
+| -------------------- | ------ | ----------------------------------- |
+| `table_count`        | `int`  | Number of tables analyzed           |
+| `relationship_count` | `int`  | Number of relationships found       |
+| `table_roles`        | `dict` | Role detection results by table FQN |
+| `patterns`           | `list` | All detected design patterns        |
+| `tensions`           | `list` | All detected design tensions        |
 
 **Methods:**
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `to_markdown()` | `str` | Formatted markdown report |
-| `to_dict()` | `dict` | JSON-serializable dictionary |
+| Method          | Returns | Description                  |
+| --------------- | ------- | ---------------------------- |
+| `to_markdown()` | `str`   | Formatted markdown report    |
+| `to_dict()`     | `dict`  | JSON-serializable dictionary |
 
 ---
 
@@ -285,17 +304,17 @@ print(f"Signals: {[s.name for s in result.signals]}")
 
 **Detected Roles:**
 
-| Role | Description |
-|------|-------------|
-| `FACT` | Measures/metrics with FK references |
+| Role        | Description                                 |
+| ----------- | ------------------------------------------- |
+| `FACT`      | Measures/metrics with FK references         |
 | `DIMENSION` | Descriptive attributes, referenced by facts |
-| `EVENT` | Append-only event/audit logs |
-| `JUNCTION` | Many-to-many relationship tables |
-| `CONFIG` | Application configuration |
-| `LOOKUP` | Small reference tables (status codes, etc.) |
-| `SNAPSHOT` | Point-in-time copies |
-| `STAGING` | Temporary/ETL tables |
-| `UNKNOWN` | Could not determine role |
+| `EVENT`     | Append-only event/audit logs                |
+| `JUNCTION`  | Many-to-many relationship tables            |
+| `CONFIG`    | Application configuration                   |
+| `LOOKUP`    | Small reference tables (status codes, etc.) |
+| `SNAPSHOT`  | Point-in-time copies                        |
+| `STAGING`   | Temporary/ETL tables                        |
+| `UNKNOWN`   | Could not determine role                    |
 
 ---
 
@@ -316,15 +335,15 @@ for pattern in patterns:
 
 **Detected Patterns:**
 
-| Pattern | Description |
-|---------|-------------|
-| `SCD_TYPE_1` | Slowly changing dimension (overwrite) |
-| `SCD_TYPE_2` | Slowly changing dimension (history) |
-| `SOFT_DELETE` | Logical deletion with deleted_at column |
-| `AUDIT_TIMESTAMPS` | created_at/updated_at columns |
-| `POLYMORPHIC` | Type discriminator with nullable columns |
-| `JSONB_FLEXIBLE` | JSONB for schema flexibility |
-| `NATURAL_KEY` | Non-surrogate primary key |
+| Pattern            | Description                              |
+| ------------------ | ---------------------------------------- |
+| `SCD_TYPE_1`       | Slowly changing dimension (overwrite)    |
+| `SCD_TYPE_2`       | Slowly changing dimension (history)      |
+| `SOFT_DELETE`      | Logical deletion with deleted_at column  |
+| `AUDIT_TIMESTAMPS` | created_at/updated_at columns            |
+| `POLYMORPHIC`      | Type discriminator with nullable columns |
+| `JSONB_FLEXIBLE`   | JSONB for schema flexibility             |
+| `NATURAL_KEY`      | Non-surrogate primary key                |
 
 ---
 
@@ -349,12 +368,60 @@ for tension in tensions:
 
 **Tension Categories:**
 
-| Category | Description |
-|----------|-------------|
+| Category        | Description                     |
+| --------------- | ------------------------------- |
 | `NORMALIZATION` | Over/under normalization issues |
-| `PERFORMANCE` | Missing indexes, wide tables |
-| `EVOLUTION` | Schema flexibility concerns |
-| `CONSISTENCY` | Data integrity risks |
+| `PERFORMANCE`   | Missing indexes, wide tables    |
+| `EVOLUTION`     | Schema flexibility concerns     |
+| `CONSISTENCY`   | Data integrity risks            |
+
+---
+
+
+---
+
+## Evolution API
+
+Tools for analyzing schema evolution over time.
+
+### `SnapshotEngine`
+
+Reconstruct schema states from Alembic history.
+
+```python
+from flaqes.evolution import SnapshotEngine
+
+engine = SnapshotEngine("alembic.ini")
+graph = engine.get_schema_at_revision("1a2b3c")
+```
+
+### `DiffEngine`
+
+Compute the architectural difference between two schema graphs.
+
+```python
+from flaqes.evolution import DiffEngine
+
+diff_engine = DiffEngine()
+delta = diff_engine.compute(base_graph, head_graph)
+
+if delta.has_changes():
+    print(f"Added tables: {delta.added_tables}")
+    for drift in delta.role_drifts:
+        print(f"Drift: {drift.table_name} {drift.old_role} -> {drift.new_role}")
+```
+
+### `EvolutionReportEngine`
+
+Analyze trends over a sequence of revisions.
+
+```python
+from flaqes.evolution import EvolutionReportEngine
+
+report_engine = EvolutionReportEngine(snapshot_engine)
+for step in report_engine.analyze_range(["rev1", "rev2", "rev3"]):
+    print(f"{step.revision_id}: {step.table_count} tables")
+```
 
 ---
 
@@ -427,13 +494,13 @@ flaqes analyze <dsn> [options]
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--workload` | Workload type: OLTP, OLAP, mixed |
-| `--volume` | Data volume: small, medium, large, massive |
-| `--format` | Output format: markdown (default), json |
-| `--tables` | Specific tables to analyze (comma-separated) |
-| `--schemas` | Schemas to include (comma-separated) |
+| Option       | Description                                  |
+| ------------ | -------------------------------------------- |
+| `--workload` | Workload type: OLTP, OLAP, mixed             |
+| `--volume`   | Data volume: small, medium, large, massive   |
+| `--format`   | Output format: markdown (default), json      |
+| `--tables`   | Specific tables to analyze (comma-separated) |
+| `--schemas`  | Schemas to include (comma-separated)         |
 
 **Examples:**
 
@@ -455,12 +522,12 @@ flaqes analyze-ddl <files...> [options]
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--schema` | Default schema name (default: public) |
-| `--workload` | Workload type |
-| `--volume` | Data volume |
-| `--format` | Output format: markdown (default), json |
+| Option       | Description                             |
+| ------------ | --------------------------------------- |
+| `--schema`   | Default schema name (default: public)   |
+| `--workload` | Workload type                           |
+| `--volume`   | Data volume                             |
+| `--format`   | Output format: markdown (default), json |
 
 **Examples:**
 
@@ -482,10 +549,10 @@ flaqes introspect --dsn <dsn> [options]
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--dsn` | Database connection string (required) |
-| `--format` | Output format: text (default), json |
+| Option     | Description                           |
+| ---------- | ------------------------------------- |
+| `--dsn`    | Database connection string (required) |
+| `--format` | Output format: text (default), json   |
 
 **Examples:**
 
@@ -493,6 +560,44 @@ flaqes introspect --dsn <dsn> [options]
 flaqes introspect --dsn postgresql://localhost/mydb
 flaqes introspect --dsn postgresql://localhost/mydb --format json
 ```
+
+---
+
+### `flaqes analyze-rev`
+
+Analyze a specific past revision (requires Alembic).
+
+```bash
+flaqes analyze-rev <revision> [options]
+```
+
+**Options:**
+*   `--config`: Path to alembic.ini (default: alembic.ini)
+*   `--workload`, `--volume`: Intent parameters.
+
+### `flaqes diff`
+
+Compare two schema revisions.
+
+```bash
+flaqes diff <base_rev> <head_rev> [options]
+```
+
+**Options:**
+*   `--config`: Path to alembic.ini
+*   `--format`: text (default), json
+
+### `flaqes evolution`
+
+Visualize evolution trends.
+
+```bash
+flaqes evolution [options]
+```
+
+**Options:**
+*   `--limit`: Number of recent revisions to analyze (default: 10)
+*   `--history-path`: Path to versions directory
 
 ---
 

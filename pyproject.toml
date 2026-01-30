@@ -40,7 +40,11 @@ all = [
 ]
 
 [project.scripts]
+<<<<<<< HEAD
 flaqes = "flaqes.cli:main"
+=======
+flakes = "flakes.cli:main"
+>>>>>>> ce7ed15 (feat: Add comprehensive CLI interface)
 
 [build-system]
 requires = ["hatchling"]

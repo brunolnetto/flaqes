@@ -14,7 +14,7 @@ flakes is a **schema critic for PostgreSQL databases** that provides intent-awar
 
 ## Implementation Status
 
-### ✅ Completed (Phases 0-5)
+### ✅ Completed (Phases 0-5 + CLI)
 
 | Component | Status | Details |
 |-----------|--------|---------|
@@ -25,12 +25,13 @@ flakes is a **schema critic for PostgreSQL databases** that provides intent-awar
 | **Tension Analysis** | ✅ Complete | Intent-aware with alternatives and effort estimates |
 | **Report Generation** | ✅ Complete | Markdown and JSON output |
 | **Main API** | ✅ Complete | `analyze_schema()` and `introspect_schema()` |
-| **Documentation** | ✅ Complete | README, implementation plan, examples |
-| **Testing** | ✅ Complete | 253 tests, 234 passing (19 integration skipped) |
+| **CLI Interface** | ✅ Complete | `flakes analyze` command with full options |
+| **Documentation** | ✅ Complete | README, implementation plan, examples, CLI guide |
+| **Testing** | ✅ Complete | 258 tests, 258 passing (19 integration skipped) |
 
 ### 🔄 In Progress (Phase 6)
 
-- [ ] CLI interface (`flakes analyze ...`)
+- [x] CLI interface (`flakes analyze ...`)
 - [ ] PyPI package publishing
 - [ ] CI/CD setup (GitHub Actions)
 
@@ -39,11 +40,12 @@ flakes is a **schema critic for PostgreSQL databases** that provides intent-awar
 ## Metrics
 
 ```
-Code:           4,582 lines across 16 modules
-Tests:          234/234 passing (19 integration tests skipped)
+Code:           5,052 lines across 17 modules
+Tests:          258/258 passing (19 integration tests skipped)
 Test Coverage:  Comprehensive unit and integration coverage
 Type Safety:    100% (strict mypy mode, Python 3.13+)
 Performance:    Async-first architecture
+CLI:            Full-featured command-line interface
 ```
 
 ---
@@ -133,7 +135,7 @@ asyncio.run(main())
 
 ### Immediate (Phase 6 Completion)
 
-1. **CLI Tool** (Priority: High, Effort: 2-3 hours)
+1. ~~**CLI Tool**~~ ✅ Complete!
    ```bash
    flakes analyze postgresql://localhost/mydb
    flakes analyze --intent olap --format json postgresql://...
@@ -206,7 +208,6 @@ python examples/basic_usage.py
 - PostgreSQL only (MySQL/SQLite planned)
 - No DDL parsing yet (requires live database)
 - Integration tests require Docker/PostgreSQL
-- No CLI yet (command-line usage via Python scripts)
 
 ---
 

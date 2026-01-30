@@ -39,6 +39,27 @@ uv pip install flaqes
 
 ## Quick Start
 
+<<<<<<< HEAD
+=======
+### Command-Line Interface
+
+```bash
+# Analyze entire database
+flakes analyze postgresql://user:pass@localhost/mydb
+
+# Use OLAP intent preset
+flakes analyze --intent olap postgresql://localhost/mydb
+
+# Analyze specific tables and save to file
+flakes analyze --tables users,orders --output report.md postgresql://localhost/mydb
+
+# JSON output for automation
+flakes analyze --format json --output report.json postgresql://localhost/mydb
+```
+
+See the [CLI Guide](docs/CLI_GUIDE.md) for comprehensive usage examples.
+
+>>>>>>> ce7ed15 (feat: Add comprehensive CLI interface)
 ### Python API
 
 ```python
@@ -393,10 +414,18 @@ flaqes operates in three layers:
 - ✅ Pattern matching (SCD, soft delete, polymorphic, audit, JSONB, etc.)
 - ✅ Tension analysis (normalization, performance, evolution)
 - ✅ Report generation (Markdown, JSON)
+<<<<<<< HEAD
 - ✅ CLI interface (`flaqes analyze`, `flaqes analyze-ddl`, `flaqes introspect`)
 - ✅ Comprehensive test suite (100% coverage)
 
 ### Roadmap 🚧
+=======
+- ✅ Comprehensive test suite
+- ✅ Command-line interface
+
+### Roadmap 🚧
+- [ ] DDL parsing for offline analysis
+>>>>>>> ce7ed15 (feat: Add comprehensive CLI interface)
 - [ ] MySQL support
 - [ ] SQLite support
 - [x] Historical schema tracking
